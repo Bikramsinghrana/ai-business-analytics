@@ -65,7 +65,7 @@ export const OrderListPage: React.FC = () => {
           <table className="w-full text-left text-sm text-slate-300">
             <thead className="bg-slate-950/60 text-xs font-semibold text-slate-400 uppercase border-b border-slate-800">
               <tr>
-                <th className="p-3">Order Number</th>
+                <th className="p-3">Order ID</th>
                 <th className="p-3">Customer</th>
                 <th className="p-3">Total Amount</th>
                 <th className="p-3">Payment</th>

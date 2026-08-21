@@ -12,7 +12,7 @@ class ApiClient {
 
   constructor() {
     this.client = axios.create({
-      baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
+      baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -24,6 +24,12 @@ class ApiClient {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+
+      const activeTenantId = localStorage.getItem('aura_active_tenant_id');
+      if (activeTenantId) {
+        config.headers['X-Tenant-ID'] = activeTenantId;
+      }
+
       return config;
     });
 
@@ -31,7 +37,7 @@ class ApiClient {
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          // Handle unauthorized session
+          localStorage.removeItem('aura_auth_token');
         }
         return Promise.reject(error);
       }
