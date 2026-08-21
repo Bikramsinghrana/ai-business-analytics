@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { Card } from '../../../components/ui/Card';
 import { Mail, Lock, Loader2, LogIn } from 'lucide-react';
 
 export const LoginForm: React.FC = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('admin@gmail.com');
   const [password, setPassword] = useState('password');
   const [loading, setLoading] = useState(false);
@@ -16,6 +18,7 @@ export const LoginForm: React.FC = () => {
     setLoading(true);
     try {
       await login({ email, password });
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed. Please check credentials.');
     } finally {
@@ -75,6 +78,15 @@ export const LoginForm: React.FC = () => {
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogIn className="w-4 h-4" />}
           Authenticate
         </button>
+
+        <div className="text-center pt-2">
+          <p className="text-xs text-slate-400">
+            Don't have an account?{' '}
+            <Link to="/register" className="text-indigo-400 hover:text-indigo-300 font-semibold underline">
+              Create an account
+            </Link>
+          </p>
+        </div>
       </form>
     </Card>
   );

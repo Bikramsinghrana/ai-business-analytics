@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { Card } from '../../../components/ui/Card';
 import { Mail, Lock, User as UserIcon, Loader2, UserPlus } from 'lucide-react';
 
 export const RegisterForm: React.FC = () => {
   const { register } = useAuth();
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +19,7 @@ export const RegisterForm: React.FC = () => {
     setLoading(true);
     try {
       await register({ name, email, password });
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed.');
     } finally {
@@ -91,6 +94,15 @@ export const RegisterForm: React.FC = () => {
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
           Create Account
         </button>
+
+        <div className="text-center pt-2">
+          <p className="text-xs text-slate-400">
+            Already have an account?{' '}
+            <Link to="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold underline">
+              Sign In
+            </Link>
+          </p>
+        </div>
       </form>
     </Card>
   );

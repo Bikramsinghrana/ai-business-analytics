@@ -14,20 +14,21 @@ interface TenantContextType {
 const TenantContext = createContext<TenantContextType | undefined>(undefined);
 
 export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [currentTenant, setCurrentTenant] = useState<Tenant | null>(null);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (isAuthenticated) {
+      setLoading(true);
       loadTenants();
-    } else {
+    } else if (!authLoading) {
       setCurrentTenant(null);
       setTenants([]);
       setLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, authLoading]);
 
   const loadTenants = async () => {
     try {
