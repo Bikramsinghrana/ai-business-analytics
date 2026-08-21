@@ -1,14 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
-import { ShieldCheck, Building2, Cpu, HardDrive, Activity } from 'lucide-react';
-import { TenantStatus } from '../../../types/enums';
+import { ShieldCheck, Building2, Cpu, HardDrive, Activity, Loader2 } from 'lucide-react';
+import { apiClient } from '../../../services/apiClient';
 
 export const SuperAdminDashboardPage: React.FC = () => {
+  const [systemConfig, setSystemConfig] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    fetchConfig();
+  }, []);
+
+  const fetchConfig = async () => {
+    try {
+      setLoading(true);
+      const res: any = await apiClient.get('/config');
+      setSystemConfig(res.data?.data || res.data || null);
+    } catch (err) {
+      console.error('Failed to fetch backend configuration:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const tenants = [
-    { id: '1', name: 'Acme Corp', status: TenantStatus.ACTIVE, plan: 'Enterprise', users: 48, aiTokens: '1.2M' },
-    { id: '2', name: 'Starlight Retail', status: TenantStatus.ACTIVE, plan: 'Pro', users: 14, aiTokens: '450K' },
-    { id: '3', name: 'Nexus Logistics', status: TenantStatus.SUSPENDED, plan: 'Standard', users: 8, aiTokens: '0' },
+    { id: '1', name: 'AURA Technologies Inc.', status: 'ACTIVE', plan: 'Enterprise', users: 5, aiTokens: '1.2M' },
+    { id: '2', name: 'Acme Global Corporation', status: 'ACTIVE', plan: 'Standard', users: 2, aiTokens: '450K' },
   ];
 
   return (
@@ -34,8 +52,8 @@ export const SuperAdminDashboardPage: React.FC = () => {
             <span className="text-xs font-semibold uppercase">Total Tenants</span>
             <Building2 className="w-4 h-4 text-indigo-400" />
           </div>
-          <div className="text-2xl font-bold text-white">42 Tenants</div>
-          <p className="text-xs text-slate-400">38 Active, 4 Suspended</p>
+          <div className="text-2xl font-bold text-white">2 Active Tenants</div>
+          <p className="text-xs text-slate-400">AURA Tech & Acme Corp</p>
         </Card>
 
         <Card className="space-y-2">
@@ -43,7 +61,9 @@ export const SuperAdminDashboardPage: React.FC = () => {
             <span className="text-xs font-semibold uppercase">AI Engine</span>
             <Cpu className="w-4 h-4 text-purple-400" />
           </div>
-          <div className="text-2xl font-bold text-white">Gemini 1.5 Pro</div>
+          <div className="text-2xl font-bold text-white">
+            {loading ? <Loader2 className="w-5 h-5 animate-spin text-indigo-400" /> : (systemConfig?.ai?.defaultProvider || 'GEMINI 1.5 PRO')}
+          </div>
           <p className="text-xs text-emerald-400">Dynamic Failover Ready</p>
         </Card>
 
@@ -52,21 +72,23 @@ export const SuperAdminDashboardPage: React.FC = () => {
             <span className="text-xs font-semibold uppercase">Storage Backend</span>
             <HardDrive className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-2xl font-bold text-white">AWS S3</div>
-          <p className="text-xs text-slate-400">Condition: Production</p>
+          <div className="text-2xl font-bold text-white">
+            {loading ? <Loader2 className="w-5 h-5 animate-spin text-indigo-400" /> : (systemConfig?.storage?.driver?.toUpperCase() || 'LOCAL')}
+          </div>
+          <p className="text-xs text-slate-400">Environment: {systemConfig?.app?.environment || 'local'}</p>
         </Card>
 
         <Card className="space-y-2">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-semibold uppercase">Horizon Workers</span>
+            <span className="text-xs font-semibold uppercase">Laravel Backend API</span>
             <Activity className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-2xl font-bold text-white">12 Queues</div>
+          <div className="text-2xl font-bold text-white">v1.0.0 Connected</div>
           <p className="text-xs text-emerald-400">0 Failed Jobs</p>
         </Card>
       </div>
 
-      {/* Tenant Governance Table */}
+      {/* Tenant Directory */}
       <Card className="space-y-4">
         <h2 className="text-lg font-bold text-white">Active Tenants Directory</h2>
         <div className="overflow-x-auto">
@@ -85,7 +107,7 @@ export const SuperAdminDashboardPage: React.FC = () => {
                 <tr key={t.id} className="hover:bg-slate-800/30">
                   <td className="p-3 font-semibold text-white">{t.name}</td>
                   <td className="p-3">
-                    <Badge variant={t.status === TenantStatus.ACTIVE ? 'success' : 'danger'}>
+                    <Badge variant={t.status === 'ACTIVE' ? 'success' : 'danger'}>
                       {t.status}
                     </Badge>
                   </td>

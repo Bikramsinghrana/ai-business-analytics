@@ -4,6 +4,7 @@ import { MainLayout } from '../components/layout/MainLayout';
 import { DashboardPage } from '../modules/dashboard/pages/DashboardPage';
 import { SuperAdminDashboardPage } from '../modules/super-admin/pages/SuperAdminDashboardPage';
 import { AIChatPage } from '../modules/ai/pages/AIChatPage';
+import { CustomerListPage } from '../modules/customers/pages/CustomerListPage';
 import { ProductListPage } from '../modules/products/pages/ProductListPage';
 import { OrderListPage } from '../modules/orders/pages/OrderListPage';
 import { SupportTicketListPage } from '../modules/support/pages/SupportTicketListPage';
@@ -20,6 +21,7 @@ export const AppRouter: React.FC = () => {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/admin" element={<SuperAdminDashboardPage />} />
         <Route path="/ai-chat" element={<AIChatPage />} />
+        <Route path="/customers" element={<CustomerListPage />} />
         <Route path="/products" element={<ProductListPage />} />
         <Route path="/orders" element={<OrderListPage />} />
         <Route path="/support" element={<SupportTicketListPage />} />
