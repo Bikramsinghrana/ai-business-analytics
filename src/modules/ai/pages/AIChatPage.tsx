@@ -1,137 +1,243 @@
-import React, { useState } from 'react';
-import { Card } from '../../../components/ui/Card';
-import { Button } from '../../../components/ui/Button';
-import { Sparkles, Send, Bot, User, Cpu } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Sparkles, Bot, Loader2 } from 'lucide-react';
 import { AIProvider } from '../../../types/enums';
 import { useToast } from '../../../context/ToastContext';
-import { AI_PROVIDER_MODELS } from '../constants/aiConstants';
-
-interface Message {
-  id: string;
-  sender: 'user' | 'ai';
-  text: string;
-  provider?: string;
-  timestamp: string;
-}
+import { aiApi } from '../api/aiApi';
+import { AiConversation, AiMessage } from '../types/ai.types';
+import { ConversationSidebar } from '../components/ConversationSidebar';
+import { ChatMessageItem } from '../components/ChatMessageItem';
+import { ChatInputArea } from '../components/ChatInputArea';
+import { AiMetricsWidget } from '../components/AiMetricsWidget';
 
 export const AIChatPage: React.FC = () => {
-  const [input, setInput] = useState('');
+  const [conversations, setConversations] = useState<AiConversation[]>([]);
+  const [activeConversation, setActiveConversation] = useState<AiConversation | null>(null);
+  const [messages, setMessages] = useState<AiMessage[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [fetchingList, setFetchingList] = useState(true);
   const [provider, setProvider] = useState<AIProvider>(AIProvider.GEMINI);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      sender: 'ai',
-      text: 'Hello! I am your AURA Multi-Agent AI Assistant. How can I automate your business operations today?',
-      provider: 'GEMINI',
-      timestamp: '10:00 AM'
+
+  useEffect(() => {
+    loadConversations();
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, loading]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const loadConversations = async () => {
+    try {
+      setFetchingList(true);
+      const res = await aiApi.getConversations();
+      const list = res.data?.conversations || [];
+      setConversations(list);
+
+      if (list.length > 0) {
+        selectConversation(list[0].id);
+      } else {
+        // Create initial default conversation
+        handleNewChat();
+      }
+    } catch (err: any) {
+      toast.error('Failed to load chats', err.message || 'Error fetching conversations');
+    } finally {
+      setFetchingList(false);
     }
-  ]);
+  };
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    const userMsg: Message = {
-      id: Date.now().toString(),
+  const selectConversation = async (id: string) => {
+    try {
+      setLoading(true);
+      const res = await aiApi.getConversation(id);
+      const conv = res.data?.conversation;
+      if (conv) {
+        setActiveConversation(conv);
+        setMessages(conv.messages || []);
+        if (conv.provider && Object.values(AIProvider).includes(conv.provider as AIProvider)) {
+          setProvider(conv.provider as AIProvider);
+        }
+      }
+    } catch (err: any) {
+      toast.error('Error opening chat', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNewChat = async () => {
+    try {
+      setLoading(true);
+      const res = await aiApi.createConversation({
+        provider,
+        title: 'New AI Conversation',
+      });
+      const newConv = res.data?.conversation;
+      if (newConv) {
+        setConversations((prev) => [newConv, ...prev]);
+        setActiveConversation(newConv);
+        setMessages([]);
+      }
+    } catch (err: any) {
+      toast.error('Failed to create new session', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteConversation = async (id: string) => {
+    try {
+      await aiApi.deleteConversation(id);
+      const updated = conversations.filter((c) => c.id !== id);
+      setConversations(updated);
+      toast.success('Session removed', 'Conversation deleted.');
+
+      if (activeConversation?.id === id) {
+        if (updated.length > 0) {
+          selectConversation(updated[0].id);
+        } else {
+          handleNewChat();
+        }
+      }
+    } catch (err: any) {
+      toast.error('Delete failed', err.message);
+    }
+  };
+
+  const handleSendMessage = async (userPrompt: string, selectedProvider: AIProvider) => {
+    if (!userPrompt.trim()) return;
+
+    // Optimistic user message preview
+    const tempUserMsg: AiMessage = {
+      id: `temp-${Date.now()}`,
+      conversation_id: activeConversation?.id || '',
       sender: 'user',
-      text: input,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      role: 'user',
+      content: userPrompt,
+      tokens_used: 0,
+      created_at: new Date().toISOString(),
     };
 
-    const aiMsg: Message = {
-      id: (Date.now() + 1).toString(),
-      sender: 'ai',
-      text: `[${provider} Response]: Processed "${input}". Database query and agent tool execution finished.`,
-      provider: provider,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
+    setMessages((prev) => [...prev, tempUserMsg]);
+    setLoading(true);
 
-    setMessages((prev) => [...prev, userMsg, aiMsg]);
-    toast.success('AI Agent Executed', `Response generated using ${AI_PROVIDER_MODELS[provider]}`);
-    setInput('');
+    try {
+      let res;
+      if (activeConversation) {
+        res = await aiApi.sendMessage(activeConversation.id, {
+          message: userPrompt,
+          provider: selectedProvider,
+        });
+      } else {
+        res = await aiApi.quickPrompt({
+          message: userPrompt,
+          provider: selectedProvider,
+        });
+      }
+
+      if (res.data) {
+        const { assistant_message, conversation } = res.data;
+        setActiveConversation(conversation);
+        setMessages(conversation.messages || []);
+        
+        // Update sidebar title if modified
+        setConversations((prev) =>
+          prev.map((c) => (c.id === conversation.id ? conversation : c))
+        );
+
+        toast.success(
+          'Agent Task Finished',
+          `Response generated via ${selectedProvider} with real-time business tools.`
+        );
+      }
+    } catch (err: any) {
+      toast.error('AI Error', err.response?.data?.message || 'Failed to generate response.');
+      // Remove temp message on error
+      setMessages((prev) => prev.filter((m) => m.id !== tempUserMsg.id));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col space-y-4">
-      {/* Header Bar */}
-      <div className="flex items-center justify-between bg-slate-900/60 backdrop-blur-md p-4 rounded-xl border border-slate-800">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
-            <Sparkles className="w-5 h-5" />
+    <div className="h-[calc(100vh-6.5rem)] flex rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl">
+      {/* Left Sidebar */}
+      <ConversationSidebar
+        conversations={conversations}
+        activeId={activeConversation?.id || null}
+        onSelect={selectConversation}
+        onNewChat={handleNewChat}
+        onDelete={handleDeleteConversation}
+        loading={fetchingList}
+      />
+
+      {/* Main Chat Hub */}
+      <div className="flex-1 flex flex-col min-w-0 bg-slate-950/60">
+        {/* Header Bar */}
+        <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/60 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-sm">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="font-bold text-white text-sm">
+                {activeConversation?.title || 'AURA AI Business Assistant'}
+              </h2>
+              <p className="text-[11px] text-slate-400">
+                Multi-Agent Function Execution & Autonomous Intelligence
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-bold text-white text-base">AURA AI Conversational Hub</h2>
-            <p className="text-xs text-slate-400">Swappable Multi-Provider Architecture</p>
-          </div>
+
+          <AiMetricsWidget />
         </div>
 
-        {/* Dynamic Provider Selection */}
-        <div className="flex items-center gap-2">
-          <Cpu className="w-4 h-4 text-slate-400" />
-          <span className="text-xs text-slate-400 font-medium">Provider:</span>
-          <select
-            value={provider}
-            onChange={(e) => setProvider(e.target.value as AIProvider)}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-indigo-400 font-semibold focus:outline-none focus:border-indigo-500"
-          >
-            {Object.entries(AI_PROVIDER_MODELS).map(([key, label]) => (
-              <option key={key} value={key}>{label}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Message List */}
-      <Card className="flex-1 overflow-y-auto space-y-4 p-6">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            {msg.sender === 'ai' && (
-              <div className="w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 flex-shrink-0">
-                <Bot className="w-4 h-4" />
+        {/* Message Stream */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+          {messages.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto space-y-4 p-8">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-600/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-xl shadow-indigo-600/10">
+                <Bot className="w-7 h-7" />
               </div>
-            )}
-            <div
-              className={`max-w-xl p-4 rounded-2xl text-sm leading-relaxed ${
-                msg.sender === 'user'
-                  ? 'bg-indigo-600 text-white rounded-br-none'
-                  : 'bg-slate-800/80 text-slate-200 border border-slate-700/60 rounded-bl-none'
-              }`}
-            >
-              <p>{msg.text}</p>
-              <div className="mt-2 flex items-center justify-between text-[10px] opacity-70">
-                <span>{msg.timestamp}</span>
-                {msg.provider && (
-                  <span className="font-semibold uppercase tracking-wider text-indigo-300">
-                    {msg.provider}
-                  </span>
-                )}
+              <div className="space-y-1.5">
+                <h3 className="text-base font-bold text-white">How can I assist your business?</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  I can analyze real-time sales revenue, monitor inventory stock levels, audit open support tickets, and evaluate CRM deal pipelines.
+                </p>
               </div>
             </div>
-            {msg.sender === 'user' && (
-              <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 flex-shrink-0">
-                <User className="w-4 h-4" />
-              </div>
-            )}
-          </div>
-        ))}
-      </Card>
+          ) : (
+            messages.map((msg) => <ChatMessageItem key={msg.id} message={msg} />)
+          )}
 
-      {/* Input Form */}
-      <div className="flex gap-3">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Ask AI to query sales, dispatch support agent, or analyze documents..."
-          className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+          {/* Thinking Indicator */}
+          {loading && (
+            <div className="flex gap-3 justify-start items-center">
+              <div className="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 flex-shrink-0 animate-pulse">
+                <Bot className="w-4 h-4" />
+              </div>
+              <div className="p-3.5 rounded-2xl rounded-tl-none bg-slate-900 border border-slate-800 text-xs text-indigo-300 flex items-center gap-2 shadow-sm">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" />
+                <span className="font-medium">AURA Agent analyzing business database & formulating response...</span>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Area */}
+        <ChatInputArea
+          onSend={handleSendMessage}
+          loading={loading}
+          provider={provider}
+          onProviderChange={setProvider}
         />
-        <Button onClick={handleSend} className="px-6">
-          <Send className="w-4 h-4" />
-          Send
-        </Button>
       </div>
     </div>
   );

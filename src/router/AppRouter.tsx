@@ -48,6 +48,8 @@ export const AppRouter: React.FC = () => {
                     }
                   />
                   <Route path="/ai-chat" element={<AIChatPage />} />
+                  <Route path="/chat" element={<AIChatPage />} />
+                  <Route path="/ai" element={<AIChatPage />} />
                   <Route
                     path="/customers"
                     element={
