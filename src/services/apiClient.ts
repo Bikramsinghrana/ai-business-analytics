@@ -1,10 +1,20 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
+export interface ApiMeta {
+  timestamp: string;
+  version: string;
+  current_page?: number;
+  last_page?: number;
+  per_page?: number;
+  total?: number;
+}
+
 export interface ApiResponse<T = any> {
   success: boolean;
-  data: T;
   message?: string;
-  errors?: Record<string, string[]>;
+  data: T;
+  meta?: ApiMeta;
+  errors?: Record<string, string[]> | string | null;
 }
 
 class ApiClient {
@@ -19,6 +29,7 @@ class ApiClient {
       },
     });
 
+    // Request Interceptor: Inject Auth & Tenant Headers
     this.client.interceptors.request.use((config) => {
       const token = localStorage.getItem('aura_auth_token');
       if (token) {
@@ -33,13 +44,22 @@ class ApiClient {
       return config;
     });
 
+    // Response Interceptor: Standardize API responses & handling
     this.client.interceptors.response.use(
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
           localStorage.removeItem('aura_auth_token');
         }
-        return Promise.reject(error);
+
+        const formattedError: ApiResponse<null> = {
+          success: false,
+          message: error.response?.data?.message || error.message || 'Network request failed',
+          data: null,
+          errors: error.response?.data?.errors || null,
+        };
+
+        return Promise.reject(formattedError);
       }
     );
   }
