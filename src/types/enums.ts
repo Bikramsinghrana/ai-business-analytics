@@ -52,7 +52,11 @@ export enum LeadStatus {
 export enum AIProvider {
   GEMINI = 'GEMINI',
   OPENAI = 'OPENAI',
+  GROQ = 'GROQ',
   CLAUDE = 'CLAUDE',
+  OPENROUTER = 'OPENROUTER',
+  OLLAMA = 'OLLAMA',
+  AURA = 'AURA',
 }
 
 export enum FeatureKey {

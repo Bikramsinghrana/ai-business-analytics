@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Sparkles, Bot, Loader2 } from 'lucide-react';
 import { AIProvider } from '../../../types/enums';
+import { SearchType } from '../types/ai.types';
 import { useToast } from '../../../context/ToastContext';
 import { aiApi } from '../api/aiApi';
 import { AiConversation, AiMessage } from '../types/ai.types';
@@ -8,6 +9,8 @@ import { ConversationSidebar } from '../components/ConversationSidebar';
 import { ChatMessageItem } from '../components/ChatMessageItem';
 import { ChatInputArea } from '../components/ChatInputArea';
 import { AiMetricsWidget } from '../components/AiMetricsWidget';
+import { AiModelSelector } from '../components/AiModelSelector';
+import { SearchTypeSelector } from '../components/SearchTypeSelector';
 
 export const AIChatPage: React.FC = () => {
   const [conversations, setConversations] = useState<AiConversation[]>([]);
@@ -16,6 +19,7 @@ export const AIChatPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [fetchingList, setFetchingList] = useState(true);
   const [provider, setProvider] = useState<AIProvider>(AIProvider.GEMINI);
+  const [searchType, setSearchType] = useState<SearchType>(SearchType.AUTO);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
 
@@ -41,7 +45,6 @@ export const AIChatPage: React.FC = () => {
       if (list.length > 0) {
         selectConversation(list[0].id);
       } else {
-        // Create initial default conversation
         handleNewChat();
       }
     } catch (err: any) {
@@ -109,7 +112,11 @@ export const AIChatPage: React.FC = () => {
     }
   };
 
-  const handleSendMessage = async (userPrompt: string, selectedProvider: AIProvider) => {
+  const handleSendMessage = async (
+    userPrompt: string,
+    selectedProvider: AIProvider,
+    selectedSearchType: SearchType
+  ) => {
     if (!userPrompt.trim()) return;
 
     // Optimistic user message preview
@@ -131,33 +138,38 @@ export const AIChatPage: React.FC = () => {
       if (activeConversation) {
         res = await aiApi.sendMessage(activeConversation.id, {
           message: userPrompt,
+          search_type: selectedSearchType,
           provider: selectedProvider,
         });
       } else {
         res = await aiApi.quickPrompt({
           message: userPrompt,
+          search_type: selectedSearchType,
           provider: selectedProvider,
         });
       }
 
       if (res.data) {
-        const { assistant_message, conversation } = res.data;
-        setActiveConversation(conversation);
-        setMessages(conversation.messages || []);
-        
-        // Update sidebar title if modified
-        setConversations((prev) =>
-          prev.map((c) => (c.id === conversation.id ? conversation : c))
-        );
+        const { conversation } = res.data;
+        if (conversation) {
+          setActiveConversation(conversation);
+          setMessages(conversation.messages || []);
+          
+          setConversations((prev) =>
+            prev.map((c) => (c.id === conversation.id ? conversation : c))
+          );
+        }
+
+        const agentName = res.data.agent_response?.agent_name || 'AURA Agent';
+        const detectedType = res.data.agent_response?.search_type || selectedSearchType;
 
         toast.success(
-          'Agent Task Finished',
-          `Response generated via ${selectedProvider} with real-time business tools.`
+          `Dispatched ${agentName}`,
+          `Handled via ${detectedType} domain using ${selectedProvider}.`
         );
       }
     } catch (err: any) {
       toast.error('AI Error', err.response?.data?.message || 'Failed to generate response.');
-      // Remove temp message on error
       setMessages((prev) => prev.filter((m) => m.id !== tempUserMsg.id));
     } finally {
       setLoading(false);
@@ -178,8 +190,8 @@ export const AIChatPage: React.FC = () => {
 
       {/* Main Chat Hub */}
       <div className="flex-1 flex flex-col min-w-0 bg-slate-950/60">
-        {/* Header Bar */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/60 backdrop-blur-md">
+        {/* Header Bar with Top Right AI Model Selector */}
+        <div className="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-slate-800 bg-slate-900/70 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-sm">
               <Sparkles className="w-5 h-5" />
@@ -189,12 +201,33 @@ export const AIChatPage: React.FC = () => {
                 {activeConversation?.title || 'AURA AI Business Assistant'}
               </h2>
               <p className="text-[11px] text-slate-400">
-                Multi-Agent Function Execution & Autonomous Intelligence
+                Multi-Agent Search Classification & Real-Time Engine
               </p>
             </div>
           </div>
 
-          <AiMetricsWidget />
+          {/* Right Top Selectors */}
+          <div className="flex items-center gap-2.5">
+            {/* AI Model / Engine Selector Dropdown */}
+            <AiModelSelector
+              value={provider}
+              onChange={setProvider}
+              disabled={loading}
+            />
+
+            {/* Search Domain Selector Dropdown */}
+            <SearchTypeSelector
+              value={searchType}
+              onChange={setSearchType}
+              disabled={loading}
+            />
+
+            <div className="hidden lg:block h-5 w-px bg-slate-800" />
+
+            <div className="hidden lg:block">
+              <AiMetricsWidget />
+            </div>
+          </div>
         </div>
 
         {/* Message Stream */}
@@ -205,9 +238,9 @@ export const AIChatPage: React.FC = () => {
                 <Bot className="w-7 h-7" />
               </div>
               <div className="space-y-1.5">
-                <h3 className="text-base font-bold text-white">How can I assist your business?</h3>
+                <h3 className="text-base font-bold text-white">How can AURA assist you today?</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  I can analyze real-time sales revenue, monitor inventory stock levels, audit open support tickets, and evaluate CRM deal pipelines.
+                  Select any category above (Project, Sports, Stocks, Business) or ask any question.
                 </p>
               </div>
             </div>
@@ -223,7 +256,7 @@ export const AIChatPage: React.FC = () => {
               </div>
               <div className="p-3.5 rounded-2xl rounded-tl-none bg-slate-900 border border-slate-800 text-xs text-indigo-300 flex items-center gap-2 shadow-sm">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" />
-                <span className="font-medium">AURA Agent analyzing business database & formulating response...</span>
+                <span className="font-medium">Classifying domain & retrieving real-time data...</span>
               </div>
             </div>
           )}
@@ -231,12 +264,13 @@ export const AIChatPage: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area */}
+        {/* Input Area with SearchType Context */}
         <ChatInputArea
           onSend={handleSendMessage}
           loading={loading}
           provider={provider}
-          onProviderChange={setProvider}
+          searchType={searchType}
+          onSearchTypeChange={setSearchType}
         />
       </div>
     </div>

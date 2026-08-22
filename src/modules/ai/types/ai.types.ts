@@ -1,9 +1,40 @@
 import { AIProvider } from '../../../types/enums';
 
+export enum SearchType {
+  AUTO = 'AUTO',
+  GENERAL = 'GENERAL',
+  PROJECT = 'PROJECT',
+  NEWS = 'NEWS',
+  SPORTS = 'SPORTS',
+  FINANCE = 'FINANCE',
+  WEATHER = 'WEATHER',
+  WEB = 'WEB',
+  KNOWLEDGE = 'KNOWLEDGE',
+  BUSINESS_DATA = 'BUSINESS_DATA',
+  ECOMMERCE = 'ECOMMERCE',
+  DEVELOPER = 'DEVELOPER',
+}
+
 export interface ToolCall {
   tool: string;
   status: string;
   description: string;
+  source?: string | null;
+  updated_at?: string | null;
+}
+
+export interface AgentResponseMeta {
+  content: string;
+  tokens_used: number;
+  agent_name: string;
+  search_type: string;
+  tool_calls: ToolCall[];
+  source?: string | null;
+  updated_at?: string | null;
+  is_real_time: boolean;
+  provider?: string | null;
+  model?: string | null;
+  metadata?: Record<string, any>;
 }
 
 export interface AiMessage {
@@ -15,6 +46,11 @@ export interface AiMessage {
   tokens_used: number;
   tool_calls?: ToolCall[] | null;
   metadata?: {
+    agent_name?: string;
+    search_type?: string;
+    source?: string | null;
+    updated_at?: string | null;
+    is_real_time?: boolean;
     provider?: string;
     model?: string;
   } | null;
@@ -35,6 +71,7 @@ export interface AiConversation {
 
 export interface SendMessagePayload {
   message: string;
+  search_type?: SearchType | string;
   provider?: AIProvider | string;
   model?: string;
 }
@@ -47,6 +84,13 @@ export interface CreateConversationPayload {
 
 export interface QuickPromptPayload extends SendMessagePayload {
   conversation_id?: string;
+}
+
+export interface SendMessageResponse {
+  user_message: AiMessage;
+  assistant_message: AiMessage;
+  agent_response?: AgentResponseMeta;
+  conversation: AiConversation;
 }
 
 export interface AiUsageStats {

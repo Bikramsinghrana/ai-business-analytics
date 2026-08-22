@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AiMessage } from '../types/ai.types';
-import { Bot, User, Copy, Check, Wrench } from 'lucide-react';
+import { Bot, User, Copy, Check, Wrench, Radio, Clock, ShieldCheck } from 'lucide-react';
 
 interface ChatMessageItemProps {
   message: AiMessage;
@@ -9,6 +9,7 @@ interface ChatMessageItemProps {
 export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => {
   const [copied, setCopied] = useState(false);
   const isAi = message.sender === 'ai' || message.role === 'assistant';
+  const meta = message.metadata || {};
 
   const handleCopy = () => {
     navigator.clipboard.writeText(message.content);
@@ -33,6 +34,14 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => 
           <h3 key={index} className="text-sm font-bold text-white mt-2 mb-1.5 flex items-center gap-1.5">
             {line.replace('### ', '')}
           </h3>
+        );
+      }
+      // Blockquotes
+      if (line.startsWith('> ')) {
+        return (
+          <blockquote key={index} className="p-2 bg-slate-950/60 border-l-2 border-indigo-500 rounded-r text-[11px] text-slate-300 my-1 font-mono">
+            {parseInlineFormatting(line.replace('> ', ''))}
+          </blockquote>
         );
       }
       // Bullet items
@@ -96,6 +105,29 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => 
       )}
 
       <div className={`max-w-2xl flex flex-col space-y-1.5 ${isAi ? 'items-start' : 'items-end'}`}>
+        {/* Agent & Search Domain Badges Header */}
+        {isAi && (meta.agent_name || meta.search_type || meta.is_real_time) && (
+          <div className="flex flex-wrap items-center gap-1.5 mb-1">
+            {meta.agent_name && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-[10px] font-semibold text-indigo-300">
+                <ShieldCheck className="w-3 h-3 text-indigo-400" />
+                <span>{meta.agent_name}</span>
+              </span>
+            )}
+            {meta.search_type && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 uppercase">
+                {meta.search_type}
+              </span>
+            )}
+            {meta.is_real_time && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-medium text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live Data
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Tool Executions Pills */}
         {isAi && message.tool_calls && message.tool_calls.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-1">
@@ -125,11 +157,18 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => 
           </div>
 
           {/* Footer Metadata */}
-          <div className="mt-2.5 pt-2 border-t border-slate-800/60 flex items-center justify-between text-[10px] text-slate-400 gap-4">
+          <div className="mt-2.5 pt-2 border-t border-slate-800/60 flex flex-wrap items-center justify-between text-[10px] text-slate-400 gap-2">
             <div className="flex items-center gap-2">
-              {message.metadata?.provider && (
-                <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 font-mono text-[9px] uppercase font-semibold">
-                  {message.metadata.provider} {message.metadata.model && `• ${message.metadata.model}`}
+              {meta.source && (
+                <span className="text-slate-400 font-mono flex items-center gap-1 truncate max-w-[200px]" title={meta.source}>
+                  <Radio className="w-2.5 h-2.5 text-indigo-400 flex-shrink-0" />
+                  <span className="truncate">{meta.source}</span>
+                </span>
+              )}
+              {meta.updated_at && (
+                <span className="text-slate-500 font-mono flex items-center gap-1">
+                  <Clock className="w-2.5 h-2.5" />
+                  {meta.updated_at}
                 </span>
               )}
               {message.tokens_used > 0 && (
@@ -139,7 +178,7 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => 
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 ml-auto">
               <span>{message.created_at ? new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}</span>
               {isAi && (
                 <button
