@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, Loader2, Sparkles, FolderGit2, Trophy, TrendingUp, Database } from 'lucide-react';
+import { Send, Loader2, Globe, MessageSquare, ShoppingBag, Newspaper, FolderGit2, Trophy, TrendingUp, Sparkles } from 'lucide-react';
 import { AIProvider } from '../../../types/enums';
 import { SearchType } from '../types/ai.types';
 import { SEARCH_TYPE_PLACEHOLDERS } from '../constants/aiConstants';
@@ -13,11 +13,13 @@ interface ChatInputAreaProps {
 }
 
 const QUICK_DOMAINS = [
-  { type: SearchType.AUTO, label: 'Auto Detect', icon: Sparkles },
+  { type: SearchType.WEB, label: 'Live Web Search', icon: Globe },
+  { type: SearchType.GENERAL, label: 'General AI', icon: MessageSquare },
+  { type: SearchType.ECOMMERCE, label: 'E-commerce', icon: ShoppingBag },
+  { type: SearchType.NEWS, label: 'News', icon: Newspaper },
   { type: SearchType.PROJECT, label: 'Project', icon: FolderGit2 },
   { type: SearchType.SPORTS, label: 'Sports', icon: Trophy },
   { type: SearchType.FINANCE, label: 'Stocks', icon: TrendingUp },
-  { type: SearchType.BUSINESS_DATA, label: 'Business Data', icon: Database },
 ];
 
 export const ChatInputArea: React.FC<ChatInputAreaProps> = ({

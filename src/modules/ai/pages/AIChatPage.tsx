@@ -19,7 +19,7 @@ export const AIChatPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [fetchingList, setFetchingList] = useState(true);
   const [provider, setProvider] = useState<AIProvider>(AIProvider.GEMINI);
-  const [searchType, setSearchType] = useState<SearchType>(SearchType.AUTO);
+  const [searchType, setSearchType] = useState<SearchType>(SearchType.WEB);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
 
@@ -208,13 +208,6 @@ export const AIChatPage: React.FC = () => {
 
           {/* Right Top Selectors */}
           <div className="flex items-center gap-2.5">
-            {/* AI Model / Engine Selector Dropdown */}
-            <AiModelSelector
-              value={provider}
-              onChange={setProvider}
-              disabled={loading}
-            />
-
             {/* Search Domain Selector Dropdown */}
             <SearchTypeSelector
               value={searchType}
@@ -227,6 +220,15 @@ export const AIChatPage: React.FC = () => {
             <div className="hidden lg:block">
               <AiMetricsWidget />
             </div>
+
+            <div className="hidden lg:block h-5 w-px bg-slate-800" />
+
+            {/* AI Model / Engine Selector Dropdown - LAST POSITION */}
+            <AiModelSelector
+              value={provider}
+              onChange={setProvider}
+              disabled={loading}
+            />
           </div>
         </div>
 

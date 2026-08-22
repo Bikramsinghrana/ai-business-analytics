@@ -89,6 +89,34 @@ export interface SearchTypeOption {
 
 export const SEARCH_TYPE_OPTIONS: SearchTypeOption[] = [
   {
+    value: SearchType.WEB,
+    label: 'Live Web Search',
+    badge: 'Web',
+    iconName: 'Globe',
+    description: 'Live web searching for up-to-date facts',
+  },
+  {
+    value: SearchType.GENERAL,
+    label: 'General AI Assistant',
+    badge: 'General',
+    iconName: 'MessageSquare',
+    description: 'General technical explanations & reasoning',
+  },
+  {
+    value: SearchType.ECOMMERCE,
+    label: 'E-commerce & Inventory',
+    badge: 'Inventory',
+    iconName: 'ShoppingBag',
+    description: 'Product catalog search, stock alerts & SKUs',
+  },
+  {
+    value: SearchType.NEWS,
+    label: 'News & Breaking Events',
+    badge: 'News',
+    iconName: 'Newspaper',
+    description: 'Live breaking news & global headlines',
+  },
+  {
     value: SearchType.AUTO,
     label: 'Auto Detect',
     badge: 'Smart Auto',
@@ -124,20 +152,6 @@ export const SEARCH_TYPE_OPTIONS: SearchTypeOption[] = [
     description: 'Live SQL queries for sales, revenue & tickets',
   },
   {
-    value: SearchType.ECOMMERCE,
-    label: 'E-commerce & Inventory',
-    badge: 'Inventory',
-    iconName: 'ShoppingBag',
-    description: 'Product catalog search, stock alerts & SKUs',
-  },
-  {
-    value: SearchType.NEWS,
-    label: 'News & Breaking Events',
-    badge: 'News',
-    iconName: 'Newspaper',
-    description: 'Live breaking news & global headlines',
-  },
-  {
     value: SearchType.WEATHER,
     label: 'Weather & Forecast',
     badge: 'Weather',
@@ -145,25 +159,11 @@ export const SEARCH_TYPE_OPTIONS: SearchTypeOption[] = [
     description: 'Live meteorological forecast & temperature',
   },
   {
-    value: SearchType.WEB,
-    label: 'Live Web Search',
-    badge: 'Web',
-    iconName: 'Globe',
-    description: 'Live web searching for up-to-date facts',
-  },
-  {
     value: SearchType.KNOWLEDGE,
     label: 'Documents & RAG',
     badge: 'Docs',
     iconName: 'FileText',
     description: 'Search uploaded tenant PDFs & contracts',
-  },
-  {
-    value: SearchType.GENERAL,
-    label: 'General AI Assistant',
-    badge: 'General',
-    iconName: 'MessageSquare',
-    description: 'General technical explanations & reasoning',
   },
 ];
 
