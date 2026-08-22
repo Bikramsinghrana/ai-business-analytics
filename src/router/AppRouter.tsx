@@ -3,6 +3,9 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from '../components/layout/MainLayout';
 import { DashboardPage } from '../modules/dashboard/pages/DashboardPage';
 import { SuperAdminDashboardPage } from '../modules/super-admin/pages/SuperAdminDashboardPage';
+import { SuperAdminTenantsPage } from '../modules/super-admin/pages/SuperAdminTenantsPage';
+import { SuperAdminUsersPage } from '../modules/super-admin/pages/SuperAdminUsersPage';
+import { SuperAdminSettingsPage } from '../modules/super-admin/pages/SuperAdminSettingsPage';
 import { AIChatPage } from '../modules/ai/pages/AIChatPage';
 import { CustomerListPage } from '../modules/customers/pages/CustomerListPage';
 import { ProductListPage } from '../modules/products/pages/ProductListPage';
@@ -44,6 +47,30 @@ export const AppRouter: React.FC = () => {
                     element={
                       <SuperAdminRoute>
                         <SuperAdminDashboardPage />
+                      </SuperAdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/tenants"
+                    element={
+                      <SuperAdminRoute>
+                        <SuperAdminTenantsPage />
+                      </SuperAdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/users"
+                    element={
+                      <SuperAdminRoute>
+                        <SuperAdminUsersPage />
+                      </SuperAdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/settings"
+                    element={
+                      <SuperAdminRoute>
+                        <SuperAdminSettingsPage />
                       </SuperAdminRoute>
                     }
                   />
