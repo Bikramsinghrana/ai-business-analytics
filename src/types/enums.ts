@@ -4,9 +4,10 @@ export enum UserRole {
   TENANT_ADMIN = 'TENANT_ADMIN',
   MANAGER = 'MANAGER',
   STAFF = 'STAFF',
-  SUPPORT_AGENT = 'SUPPORT_AGENT',
-  SALES_AGENT = 'SALES_AGENT',
-  CUSTOMER = 'CUSTOMER',
+  ANALYST = 'ANALYST',
+  DEVELOPER = 'DEVELOPER',
+  CLIENT = 'CLIENT',
+  USER = 'USER',
 }
 
 export enum TenantStatus {

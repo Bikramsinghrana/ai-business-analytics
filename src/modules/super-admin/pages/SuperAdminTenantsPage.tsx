@@ -113,7 +113,7 @@ export const SuperAdminTenantsPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <Building2 className="w-7 h-7 text-indigo-400" />
-            Company & Tenant Governance (CRUD)
+            Company & Tenant Management
           </h1>
           <p className="text-sm text-slate-400 mt-1">
             Super Admin management panel to provision, edit, isolate, or safely remove tenant organizations

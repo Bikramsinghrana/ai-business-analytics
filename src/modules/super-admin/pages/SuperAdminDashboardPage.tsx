@@ -36,7 +36,7 @@ export const SuperAdminDashboardPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <ShieldCheck className="w-7 h-7 text-indigo-400" />
-            Super Admin Governance Dashboard
+            Super Admin Management Dashboard
           </h1>
           <p className="text-sm text-slate-400 mt-1">
             Global multi-tenant system controls, environment configuration & AI model management

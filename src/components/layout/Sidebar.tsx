@@ -15,7 +15,6 @@ import {
   FileText,
   ChevronDown,
   Users,
-  Search,
   Lock,
   Cpu,
   Layers,
@@ -42,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
   const location = useLocation();
 
-  // Collapsible dropdown states for streamlined short-name modules
+  // Collapsible dropdown states
   const [openM1, setOpenM1] = useState<boolean>(location.pathname === '/dashboard' || location.pathname.startsWith('/sql-analyst'));
   const [openM2, setOpenM2] = useState<boolean>(location.pathname.startsWith('/ai-chat'));
   const [openM3, setOpenM3] = useState<boolean>(
@@ -70,7 +69,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      {/* Navigation Links (Short Professional Module Names) */}
+      {/* Navigation Links */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 custom-scrollbar">
         
         {/* MODULE 01: Executive BI */}
@@ -117,7 +116,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* MODULE 02: AI Intelligence (MERGED 02 + 03!) */}
+        {/* MODULE 02: AI Intelligence (UNIFIED AI ASSISTANT + SEARCH + TOOLS) */}
         <div className="space-y-1">
           <button
             onClick={() => setOpenM2(!openM2)}
@@ -135,7 +134,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {features[FeatureKey.AI_CHAT] !== false && (
                 <NavLink
                   to="/ai-chat"
-                  end
                   className={({ isActive }) =>
                     `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
@@ -146,17 +144,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <span>AI Assistant Hub</span>
                 </NavLink>
               )}
-              <NavLink
-                to="/ai-chat?mode=search"
-                className={({ isActive }) =>
-                  `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                  }`
-                }
-              >
-                <Search className="w-3.5 h-3.5 text-purple-400" />
-                <span>Web & Sports Search</span>
-              </NavLink>
             </div>
           )}
         </div>
@@ -341,7 +328,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* MODULE 08: Governance */}
+        {/* MODULE 08: Management */}
         {isSuperAdmin && (
           <div className="space-y-1">
             <button
@@ -350,7 +337,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <span className="flex items-center gap-2">
                 <Lock className="w-3.5 h-3.5 text-slate-300" />
-                08. Governance
+                08. Management
               </span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM8 ? 'rotate-180 text-slate-300' : ''}`} />
             </button>
@@ -377,14 +364,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                 >
                   <Users className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Users & Roles (RBAC)</span>
+                  <span>Users Directory</span>
+                </NavLink>
+                <NavLink
+                  to="/admin/roles"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <Lock className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Roles & Permissions (RBAC)</span>
                 </NavLink>
               </div>
             )}
           </div>
         )}
 
-        {/* MODULE 09: System Settings (IN LAST!) */}
+        {/* MODULE 09: System Settings */}
         {isSuperAdmin && (
           <div className="space-y-1">
             <button

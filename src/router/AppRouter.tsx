@@ -5,6 +5,7 @@ import { DashboardPage } from '../modules/dashboard/pages/DashboardPage';
 import { SuperAdminDashboardPage } from '../modules/super-admin/pages/SuperAdminDashboardPage';
 import { SuperAdminTenantsPage } from '../modules/super-admin/pages/SuperAdminTenantsPage';
 import { SuperAdminUsersPage } from '../modules/super-admin/pages/SuperAdminUsersPage';
+import { SuperAdminRolesPage } from '../modules/super-admin/pages/SuperAdminRolesPage';
 import { SuperAdminSettingsPage } from '../modules/super-admin/pages/SuperAdminSettingsPage';
 import { AIChatPage } from '../modules/ai/pages/AIChatPage';
 import { CustomerListPage } from '../modules/customers/pages/CustomerListPage';
@@ -63,6 +64,14 @@ export const AppRouter: React.FC = () => {
                     element={
                       <SuperAdminRoute>
                         <SuperAdminUsersPage />
+                      </SuperAdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/roles"
+                    element={
+                      <SuperAdminRoute>
+                        <SuperAdminRolesPage />
                       </SuperAdminRoute>
                     }
                   />

@@ -143,10 +143,10 @@ export const SuperAdminUsersPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <Users className="w-7 h-7 text-indigo-400" />
-            Seeded User, Role & Permission Governance
+            User, Role & Permission Management
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Super Admin governance panel displaying dynamic seeded database users & role permissions
+            Super Admin management panel displaying dynamic seeded database users & role permissions
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -284,16 +284,22 @@ export const SuperAdminUsersPage: React.FC = () => {
 
               <div>
                 <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block mb-1">
-                  Assign System Role
+                  Assign System Role (All RBAC Roles)
                 </label>
                 <select
                   value={newUserRole}
                   onChange={(e: any) => setNewUserRole(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="STAFF">Staff User</option>
-                  <option value={UserRole.TENANT_ADMIN}>Tenant Admin</option>
-                  <option value={UserRole.SUPER_ADMIN}>Super Admin (Global Override)</option>
+                  <option value={UserRole.SUPER_ADMIN}>👑 Super Admin (Global Override)</option>
+                  <option value={UserRole.TENANT_OWNER}>🏢 Tenant Owner</option>
+                  <option value={UserRole.TENANT_ADMIN}>🛡️ Tenant Administrator</option>
+                  <option value={UserRole.MANAGER}>📊 Business Manager</option>
+                  <option value={UserRole.STAFF}>👤 Staff Member</option>
+                  <option value={UserRole.ANALYST}>💾 BI & Data Analyst</option>
+                  <option value={UserRole.DEVELOPER}>💻 Developer & AI Integrator</option>
+                  <option value={UserRole.CLIENT}>🛍️ End Customer / Client</option>
+                  <option value={UserRole.USER}>👥 Standard User</option>
                 </select>
               </div>
 
