@@ -31,6 +31,10 @@ class ApiClient {
 
     // Request Interceptor: Inject Auth & Tenant Headers
     this.client.interceptors.request.use((config) => {
+      if (config.data instanceof FormData) {
+        delete config.headers['Content-Type'];
+      }
+
       const token = localStorage.getItem('aura_auth_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;

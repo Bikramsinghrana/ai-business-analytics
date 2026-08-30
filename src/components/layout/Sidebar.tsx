@@ -19,7 +19,10 @@ import {
   Cpu,
   Layers,
   Store,
-  DollarSign
+  DollarSign,
+  Search,
+  BrainCircuit,
+  BarChart3
 } from 'lucide-react';
 import { UserRole, FeatureKey } from '../../types/enums';
 
@@ -266,7 +269,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* MODULE 06: Knowledge RAG */}
+        {/* MODULE 06: RAG & Document Intelligence */}
         <div className="space-y-1">
           <button
             onClick={() => setOpenM6(!openM6)}
@@ -274,7 +277,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           >
             <span className="flex items-center gap-2">
               <FileText className="w-3.5 h-3.5 text-cyan-400" />
-              06. Knowledge RAG
+              06. RAG & Document Intelligence
             </span>
             <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM6 ? 'rotate-180 text-cyan-400' : ''}`} />
           </button>
@@ -282,17 +285,77 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {openM6 && (
             <div className="pl-2 space-y-1 border-l-2 border-cyan-500/30 ml-3">
               {features[FeatureKey.RAG_DOCUMENTS] !== false && (
-                <NavLink
-                  to="/documents"
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                    }`
-                  }
-                >
-                  <FileText className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Knowledge Base (RAG)</span>
-                </NavLink>
+                <>
+                  <NavLink
+                    to="/documents?tab=library"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive && (location.search.includes('tab=library') || !location.search.includes('tab='))
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Knowledge Base & Files</span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/documents?tab=chat"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive && location.search.includes('tab=chat')
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <Bot className="w-3.5 h-3.5 text-pink-400" />
+                    <span>Multi-Doc AI Chat</span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/documents?tab=search"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive && location.search.includes('tab=search')
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <Search className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>RAG Hybrid Search</span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/documents?tab=intelligence"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive && location.search.includes('tab=intelligence')
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <BrainCircuit className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Intelligence & Schema</span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/documents?tab=analytics"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive && location.search.includes('tab=analytics')
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <BarChart3 className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Vector Analytics & Logs</span>
+                  </NavLink>
+                </>
               )}
             </div>
           )}

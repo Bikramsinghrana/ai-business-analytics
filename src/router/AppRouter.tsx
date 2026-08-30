@@ -8,6 +8,7 @@ import { SuperAdminUsersPage } from '../modules/super-admin/pages/SuperAdminUser
 import { SuperAdminRolesPage } from '../modules/super-admin/pages/SuperAdminRolesPage';
 import { SuperAdminSettingsPage } from '../modules/super-admin/pages/SuperAdminSettingsPage';
 import { AIChatPage } from '../modules/ai/pages/AIChatPage';
+import { KnowledgeBasePage } from '../modules/documents/pages/KnowledgeBasePage';
 import { CustomerListPage } from '../modules/customers/pages/CustomerListPage';
 import { ProductListPage } from '../modules/products/pages/ProductListPage';
 import { OrderListPage } from '../modules/orders/pages/OrderListPage';
@@ -105,6 +106,8 @@ export const AppRouter: React.FC = () => {
                   <Route path="/orders" element={<OrderListPage />} />
                   <Route path="/support" element={<SupportTicketListPage />} />
                   <Route path="/sales" element={<SalesLeadListPage />} />
+                  <Route path="/documents" element={<KnowledgeBasePage />} />
+                  <Route path="/knowledge" element={<KnowledgeBasePage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>
