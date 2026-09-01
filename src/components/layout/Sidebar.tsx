@@ -237,33 +237,94 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* MODULE 05: Support Desk */}
+        {/* MODULE 05: Customer Support Agent */}
         <div className="space-y-1">
           <button
             onClick={() => setOpenM5(!openM5)}
             className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
           >
             <span className="flex items-center gap-2">
-              <Headphones className="w-3.5 h-3.5 text-blue-400" />
-              05. Support Desk
+              <Headphones className="w-3.5 h-3.5 text-purple-400" />
+              05. Customer Support Agent
             </span>
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM5 ? 'rotate-180 text-blue-400' : ''}`} />
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM5 ? 'rotate-180 text-purple-400' : ''}`} />
           </button>
 
           {openM5 && (
-            <div className="pl-2 space-y-1 border-l-2 border-blue-500/30 ml-3">
+            <div className="pl-2 space-y-1 border-l-2 border-purple-500/30 ml-3">
               {features[FeatureKey.SUPPORT_AGENT] !== false && (
-                <NavLink
-                  to="/support"
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                    }`
-                  }
-                >
-                  <Headphones className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Tickets & Support Agent</span>
-                </NavLink>
+                <>
+                  <NavLink
+                    to="/support"
+                    end
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive && (!location.search || !location.search.includes('tab=') || location.search.includes('tab=inbox'))
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <Headphones className="w-3.5 h-3.5 text-purple-400" />
+                    <span>Support Inbox & Tickets</span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/support?tab=customers"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive && location.search.includes('tab=customers')
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <Users className="w-3.5 h-3.5 text-purple-400" />
+                    <span>Customer 360 & Orders</span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/support?tab=ai-agent"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive && location.search.includes('tab=ai-agent')
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <Bot className="w-3.5 h-3.5 text-pink-400" />
+                    <span>AI Agent Studio</span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/support?tab=faqs"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive && location.search.includes('tab=faqs')
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span>FAQs & Knowledge Base</span>
+                  </NavLink>
+
+                  <NavLink
+                    to="/support?tab=analytics"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive && location.search.includes('tab=analytics')
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>SLA & Support Analytics</span>
+                  </NavLink>
+                </>
               )}
             </div>
           )}

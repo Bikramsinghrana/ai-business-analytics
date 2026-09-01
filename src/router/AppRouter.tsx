@@ -12,7 +12,7 @@ import { KnowledgeBasePage } from '../modules/documents/pages/KnowledgeBasePage'
 import { CustomerListPage } from '../modules/customers/pages/CustomerListPage';
 import { ProductListPage } from '../modules/products/pages/ProductListPage';
 import { OrderListPage } from '../modules/orders/pages/OrderListPage';
-import { SupportTicketListPage } from '../modules/support/pages/SupportTicketListPage';
+import { CustomerSupportPage } from '../modules/support/pages/CustomerSupportPage';
 import { SalesLeadListPage } from '../modules/sales/pages/SalesLeadListPage';
 import { LoginPage } from '../modules/auth/pages/LoginPage';
 import { RegisterPage } from '../modules/auth/pages/RegisterPage';
@@ -104,7 +104,7 @@ export const AppRouter: React.FC = () => {
                     }
                   />
                   <Route path="/orders" element={<OrderListPage />} />
-                  <Route path="/support" element={<SupportTicketListPage />} />
+                  <Route path="/support" element={<CustomerSupportPage />} />
                   <Route path="/sales" element={<SalesLeadListPage />} />
                   <Route path="/documents" element={<KnowledgeBasePage />} />
                   <Route path="/knowledge" element={<KnowledgeBasePage />} />

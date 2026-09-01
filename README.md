@@ -11,6 +11,7 @@
 - **State & Routing**: React Router v6 & Custom Auth Context
 - **API Communication**: Centralized Axios Client ([`src/services/apiClient.ts`](file:///c:/laragon/www/ai-business-analytics/src/services/apiClient.ts))
 - **API Spec**: See [`API_DOCUMENTATION.md`](file:///c:/laragon/www/ai-business-analytics/API_DOCUMENTATION.md) for frontend API consumption details.
+- **Customer Support Guide**: See [`CUSTOMER_SUPPORT_GUIDE.md`](file:///c:/laragon/www/ai-business-analytics/CUSTOMER_SUPPORT_GUIDE.md) for Module 10 workflow & operating guide.
 
 ---
 
