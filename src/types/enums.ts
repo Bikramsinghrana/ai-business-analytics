@@ -1,13 +1,11 @@
 export enum UserRole {
   SUPER_ADMIN = 'SUPER_ADMIN',
   TENANT_OWNER = 'TENANT_OWNER',
-  TENANT_ADMIN = 'TENANT_ADMIN',
   MANAGER = 'MANAGER',
   STAFF = 'STAFF',
-  ANALYST = 'ANALYST',
   DEVELOPER = 'DEVELOPER',
   CLIENT = 'CLIENT',
-  USER = 'USER',
+  CUSTOMER = 'CUSTOMER',
 }
 
 export enum TenantStatus {

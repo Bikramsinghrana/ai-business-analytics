@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { Card } from '../../../components/ui/Card';
-import { Mail, Lock, User as UserIcon, Loader2, UserPlus } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Loader2, UserPlus, CheckCircle } from 'lucide-react';
 
 export const RegisterForm: React.FC = () => {
   const { register } = useAuth();
@@ -12,17 +12,22 @@ export const RegisterForm: React.FC = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccessMsg(null);
     setLoading(true);
+
     try {
       await register({ name, email, password });
-      navigate('/dashboard');
+      setSuccessMsg('Account created successfully! Redirecting to Customer Portal...');
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1200);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed.');
-    } finally {
       setLoading(false);
     }
   };
@@ -33,6 +38,13 @@ export const RegisterForm: React.FC = () => {
         <h2 className="text-2xl font-extrabold text-white">Create AURA Account</h2>
         <p className="text-sm text-slate-400">Join Multi-Tenant AI Automation Platform</p>
       </div>
+
+      {successMsg && (
+        <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-sm text-emerald-400 font-medium flex items-center justify-center gap-2 text-center animate-fade-in">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{successMsg}</span>
+        </div>
+      )}
 
       {error && (
         <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-400 text-center">
@@ -88,8 +100,8 @@ export const RegisterForm: React.FC = () => {
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30"
+          disabled={loading || !!successMsg}
+          className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30"
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
           Create Account

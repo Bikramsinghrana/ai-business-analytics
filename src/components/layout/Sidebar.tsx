@@ -42,6 +42,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }
 }) => {
   const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
+  const isCustomerOrClient = userRole === UserRole.CUSTOMER || userRole === UserRole.CLIENT;
+  const isDeveloper = userRole === UserRole.DEVELOPER;
+  const isStaff = userRole === UserRole.STAFF;
+  const isManager = userRole === UserRole.MANAGER;
+  const isTenantOwner = userRole === UserRole.TENANT_OWNER;
+
+  // Role & Permission based module visibility
+  const canSeeM1 = isSuperAdmin || isTenantOwner || isManager || isCustomerOrClient;
+  const canSeeM2 = isSuperAdmin || isTenantOwner || isManager || isStaff || isDeveloper;
+  const canSeeM3 = isSuperAdmin || isTenantOwner || isManager || isStaff || isCustomerOrClient;
+  const canSeeM4 = isSuperAdmin || isTenantOwner || isManager;
+  const canSeeM5 = isSuperAdmin || isTenantOwner || isManager || isStaff || isCustomerOrClient;
+  const canSeeM6 = isSuperAdmin || isTenantOwner || isManager || isDeveloper;
+  const canSeeM7 = isSuperAdmin || isTenantOwner || isDeveloper;
+  const canSeeM8 = isSuperAdmin || isTenantOwner;
+  const canSeeM9 = isSuperAdmin;
+
   const location = useLocation();
 
   // Collapsible dropdown states
@@ -76,384 +93,360 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 custom-scrollbar">
         
         {/* MODULE 01: Executive BI */}
-        <div className="space-y-1">
-          <button
-            onClick={() => setOpenM1(!openM1)}
-            className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
-              01. Executive BI
-            </span>
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM1 ? 'rotate-180 text-indigo-400' : ''}`} />
-          </button>
-
-          {openM1 && (
-            <div className="pl-2 space-y-1 border-l-2 border-indigo-500/30 ml-3">
-              <NavLink
-                to="/dashboard"
-                className={({ isActive }) =>
-                  `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                  }`
-                }
-              >
+        {canSeeM1 && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setOpenM1(!openM1)}
+              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
                 <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
-                <span>Executive Dashboard</span>
-              </NavLink>
+                01. Executive BI
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM1 ? 'rotate-180 text-indigo-400' : ''}`} />
+            </button>
 
-              {features[FeatureKey.SQL_ANALYST] !== false && (
+            {openM1 && (
+              <div className="pl-2 space-y-1 border-l-2 border-indigo-500/30 ml-3">
                 <NavLink
-                  to="/sql-analyst"
+                  to="/dashboard"
                   className={({ isActive }) =>
                     `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                     }`
                   }
                 >
-                  <Database className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>SQL Analyst AI</span>
+                  <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Executive Dashboard</span>
                 </NavLink>
-              )}
-            </div>
-          )}
-        </div>
 
-        {/* MODULE 02: AI Intelligence (UNIFIED AI ASSISTANT + SEARCH + TOOLS) */}
-        <div className="space-y-1">
-          <button
-            onClick={() => setOpenM2(!openM2)}
-            className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-pink-400" />
-              02. AI Intelligence
-            </span>
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM2 ? 'rotate-180 text-pink-400' : ''}`} />
-          </button>
+                {features[FeatureKey.SQL_ANALYST] !== false && (
+                  <NavLink
+                    to="/sql-analyst"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <Database className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>SQL Analyst AI</span>
+                  </NavLink>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
-          {openM2 && (
-            <div className="pl-2 space-y-1 border-l-2 border-pink-500/30 ml-3">
-              {features[FeatureKey.AI_CHAT] !== false && (
-                <NavLink
-                  to="/ai-chat"
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                    }`
-                  }
-                >
-                  <Bot className="w-3.5 h-3.5 text-pink-400" />
-                  <span>AI Assistant Hub</span>
-                </NavLink>
-              )}
-            </div>
-          )}
-        </div>
+        {/* MODULE 02: AI Intelligence */}
+        {canSeeM2 && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setOpenM2(!openM2)}
+              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                02. AI Intelligence
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM2 ? 'rotate-180 text-purple-400' : ''}`} />
+            </button>
+
+            {openM2 && (
+              <div className="pl-2 space-y-1 border-l-2 border-purple-500/30 ml-3">
+                {features[FeatureKey.AI_CHAT] !== false && (
+                  <NavLink
+                    to="/ai-chat"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <Bot className="w-3.5 h-3.5 text-purple-400" />
+                    <span>AI Assistant Studio</span>
+                  </NavLink>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* MODULE 03: E-Commerce */}
-        <div className="space-y-1">
-          <button
-            onClick={() => setOpenM3(!openM3)}
-            className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <Store className="w-3.5 h-3.5 text-emerald-400" />
-              03. E-Commerce
-            </span>
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM3 ? 'rotate-180 text-emerald-400' : ''}`} />
-          </button>
+        {canSeeM3 && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setOpenM3(!openM3)}
+              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Store className="w-3.5 h-3.5 text-emerald-400" />
+                03. E-Commerce
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM3 ? 'rotate-180 text-emerald-400' : ''}`} />
+            </button>
 
-          {openM3 && (
-            <div className="pl-2 space-y-1 border-l-2 border-emerald-500/30 ml-3">
-              <NavLink
-                to="/products"
-                className={({ isActive }) =>
-                  `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                  }`
-                }
-              >
-                <Package className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Products & Stock</span>
-              </NavLink>
-
-              <NavLink
-                to="/orders"
-                className={({ isActive }) =>
-                  `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                  }`
-                }
-              >
-                <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Orders & Fulfillment</span>
-              </NavLink>
-
-              <NavLink
-                to="/customers"
-                className={({ isActive }) =>
-                  `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                  }`
-                }
-              >
-                <Users className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Customer Directory</span>
-              </NavLink>
-            </div>
-          )}
-        </div>
-
-        {/* MODULE 04: Sales & CRM */}
-        <div className="space-y-1">
-          <button
-            onClick={() => setOpenM4(!openM4)}
-            className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <DollarSign className="w-3.5 h-3.5 text-amber-400" />
-              04. Sales & CRM
-            </span>
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM4 ? 'rotate-180 text-amber-400' : ''}`} />
-          </button>
-
-          {openM4 && (
-            <div className="pl-2 space-y-1 border-l-2 border-amber-500/30 ml-3">
-              {features[FeatureKey.SALES_AGENT] !== false && (
+            {openM3 && (
+              <div className="pl-2 space-y-1 border-l-2 border-emerald-500/30 ml-3">
                 <NavLink
-                  to="/sales"
+                  to="/products"
                   className={({ isActive }) =>
                     `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                     }`
                   }
                 >
-                  <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
-                  <span>CRM & Sales Leads</span>
+                  <Package className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Product Catalog</span>
                 </NavLink>
-              )}
-            </div>
-          )}
-        </div>
+
+                <NavLink
+                  to="/orders"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Orders & Fulfillment</span>
+                </NavLink>
+
+                {!isCustomerOrClient && (
+                  <NavLink
+                    to="/customers"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <Users className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Customer Directory</span>
+                  </NavLink>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MODULE 04: Sales & E-Commerce Suite */}
+        {canSeeM4 && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setOpenM4(!openM4)}
+              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <DollarSign className="w-3.5 h-3.5 text-amber-400" />
+                04. Sales & E-Commerce Suite
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM4 ? 'rotate-180 text-amber-400' : ''}`} />
+            </button>
+
+            {openM4 && (
+              <div className="pl-2 space-y-1 border-l-2 border-amber-500/30 ml-3">
+                {features[FeatureKey.SALES_AGENT] !== false && (
+                  <>
+                    <NavLink
+                      to="/sales?tab=pipeline"
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive && (!location.search || location.search.includes('tab=pipeline'))
+                            ? 'bg-indigo-600 text-white shadow'
+                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Sales Leads & CRM</span>
+                    </NavLink>
+
+                    <NavLink
+                      to="/sales?tab=catalog"
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive && location.search.includes('tab=catalog')
+                            ? 'bg-indigo-600 text-white shadow'
+                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <Package className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Products & Inventory</span>
+                    </NavLink>
+
+                    <NavLink
+                      to="/sales?tab=ai-sales"
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive && location.search.includes('tab=ai-sales')
+                            ? 'bg-indigo-600 text-white shadow'
+                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <Bot className="w-3.5 h-3.5 text-amber-400" />
+                      <span>AI Sales Studio</span>
+                    </NavLink>
+
+                    <NavLink
+                      to="/sales?tab=analytics"
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive && location.search.includes('tab=analytics')
+                            ? 'bg-indigo-600 text-white shadow'
+                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <BarChart3 className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Revenue Analytics</span>
+                    </NavLink>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* MODULE 05: Customer Support Agent */}
-        <div className="space-y-1">
-          <button
-            onClick={() => setOpenM5(!openM5)}
-            className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <Headphones className="w-3.5 h-3.5 text-purple-400" />
-              05. Customer Support Agent
-            </span>
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM5 ? 'rotate-180 text-purple-400' : ''}`} />
-          </button>
+        {canSeeM5 && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setOpenM5(!openM5)}
+              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Headphones className="w-3.5 h-3.5 text-purple-400" />
+                05. Customer Support Agent
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM5 ? 'rotate-180 text-purple-400' : ''}`} />
+            </button>
 
-          {openM5 && (
-            <div className="pl-2 space-y-1 border-l-2 border-purple-500/30 ml-3">
-              {features[FeatureKey.SUPPORT_AGENT] !== false && (
-                <>
-                  <NavLink
-                    to="/support"
-                    end
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive && (!location.search || !location.search.includes('tab=') || location.search.includes('tab=inbox'))
-                          ? 'bg-indigo-600 text-white shadow'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <Headphones className="w-3.5 h-3.5 text-purple-400" />
-                    <span>Support Inbox & Tickets</span>
-                  </NavLink>
+            {openM5 && (
+              <div className="pl-2 space-y-1 border-l-2 border-purple-500/30 ml-3">
+                {features[FeatureKey.SUPPORT_AGENT] !== false && (
+                  <>
+                    <NavLink
+                      to="/support"
+                      end
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive && (!location.search || !location.search.includes('tab=') || location.search.includes('tab=inbox'))
+                            ? 'bg-indigo-600 text-white shadow'
+                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <Headphones className="w-3.5 h-3.5 text-purple-400" />
+                      <span>Support Inbox & Tickets</span>
+                    </NavLink>
 
-                  <NavLink
-                    to="/support?tab=customers"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive && location.search.includes('tab=customers')
-                          ? 'bg-indigo-600 text-white shadow'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <Users className="w-3.5 h-3.5 text-purple-400" />
-                    <span>Customer 360 & Orders</span>
-                  </NavLink>
+                    {!isCustomerOrClient && (
+                      <NavLink
+                        to="/support?tab=customers"
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                            isActive && location.search.includes('tab=customers')
+                              ? 'bg-indigo-600 text-white shadow'
+                              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                          }`
+                        }
+                      >
+                        <Users className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Customer 360 & Orders</span>
+                      </NavLink>
+                    )}
 
-                  <NavLink
-                    to="/support?tab=ai-agent"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive && location.search.includes('tab=ai-agent')
-                          ? 'bg-indigo-600 text-white shadow'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <Bot className="w-3.5 h-3.5 text-pink-400" />
-                    <span>AI Agent Studio</span>
-                  </NavLink>
-
-                  <NavLink
-                    to="/support?tab=faqs"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive && location.search.includes('tab=faqs')
-                          ? 'bg-indigo-600 text-white shadow'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span>FAQs & Knowledge Base</span>
-                  </NavLink>
-
-                  <NavLink
-                    to="/support?tab=analytics"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive && location.search.includes('tab=analytics')
-                          ? 'bg-indigo-600 text-white shadow'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>SLA & Support Analytics</span>
-                  </NavLink>
-                </>
-              )}
-            </div>
-          )}
-        </div>
+                    <NavLink
+                      to="/support?tab=faqs"
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive && location.search.includes('tab=faqs')
+                            ? 'bg-indigo-600 text-white shadow'
+                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      <span>FAQs & Knowledge Base</span>
+                    </NavLink>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* MODULE 06: RAG & Document Intelligence */}
-        <div className="space-y-1">
-          <button
-            onClick={() => setOpenM6(!openM6)}
-            className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <FileText className="w-3.5 h-3.5 text-cyan-400" />
-              06. RAG & Document Intelligence
-            </span>
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM6 ? 'rotate-180 text-cyan-400' : ''}`} />
-          </button>
+        {canSeeM6 && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setOpenM6(!openM6)}
+              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                06. RAG & Document Intelligence
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM6 ? 'rotate-180 text-cyan-400' : ''}`} />
+            </button>
 
-          {openM6 && (
-            <div className="pl-2 space-y-1 border-l-2 border-cyan-500/30 ml-3">
-              {features[FeatureKey.RAG_DOCUMENTS] !== false && (
-                <>
+            {openM6 && (
+              <div className="pl-2 space-y-1 border-l-2 border-cyan-500/30 ml-3">
+                {features[FeatureKey.RAG_DOCUMENTS] !== false && (
                   <NavLink
                     to="/documents?tab=library"
                     className={({ isActive }) =>
                       `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive && (location.search.includes('tab=library') || !location.search.includes('tab='))
-                          ? 'bg-indigo-600 text-white shadow'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                       }`
                     }
                   >
                     <FileText className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Knowledge Base & Files</span>
                   </NavLink>
-
-                  <NavLink
-                    to="/documents?tab=chat"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive && location.search.includes('tab=chat')
-                          ? 'bg-indigo-600 text-white shadow'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <Bot className="w-3.5 h-3.5 text-pink-400" />
-                    <span>Multi-Doc AI Chat</span>
-                  </NavLink>
-
-                  <NavLink
-                    to="/documents?tab=search"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive && location.search.includes('tab=search')
-                          ? 'bg-indigo-600 text-white shadow'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <Search className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>RAG Hybrid Search</span>
-                  </NavLink>
-
-                  <NavLink
-                    to="/documents?tab=intelligence"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive && location.search.includes('tab=intelligence')
-                          ? 'bg-indigo-600 text-white shadow'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <BrainCircuit className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Intelligence & Schema</span>
-                  </NavLink>
-
-                  <NavLink
-                    to="/documents?tab=analytics"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive && location.search.includes('tab=analytics')
-                          ? 'bg-indigo-600 text-white shadow'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <BarChart3 className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Vector Analytics & Logs</span>
-                  </NavLink>
-                </>
-              )}
-            </div>
-          )}
-        </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* MODULE 07: Agent Studio */}
-        <div className="space-y-1">
-          <button
-            onClick={() => setOpenM7(!openM7)}
-            className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <Layers className="w-3.5 h-3.5 text-violet-400" />
-              07. Agent Studio
-            </span>
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM7 ? 'rotate-180 text-violet-400' : ''}`} />
-          </button>
+        {canSeeM7 && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setOpenM7(!openM7)}
+              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Layers className="w-3.5 h-3.5 text-violet-400" />
+                07. Agent Studio
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM7 ? 'rotate-180 text-violet-400' : ''}`} />
+            </button>
 
-          {openM7 && (
-            <div className="pl-2 space-y-1 border-l-2 border-violet-500/30 ml-3">
-              <NavLink
-                to="/ai-chat?mode=dev"
-                className={({ isActive }) =>
-                  `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                  }`
-                }
-              >
-                <Cpu className="w-3.5 h-3.5 text-violet-400" />
-                <span>Developer & Supervisor</span>
-              </NavLink>
-            </div>
-          )}
-        </div>
+            {openM7 && (
+              <div className="pl-2 space-y-1 border-l-2 border-violet-500/30 ml-3">
+                <NavLink
+                  to="/ai-chat?mode=dev"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <Cpu className="w-3.5 h-3.5 text-violet-400" />
+                  <span>Developer & Supervisor</span>
+                </NavLink>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* MODULE 08: Management */}
-        {isSuperAdmin && (
+        {canSeeM8 && (
           <div className="space-y-1">
             <button
               onClick={() => setOpenM8(!openM8)}
@@ -468,17 +461,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {openM8 && (
               <div className="pl-2 space-y-1 border-l-2 border-slate-700 ml-3">
-                <NavLink
-                  to="/admin/tenants"
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                    }`
-                  }
-                >
-                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Companies / Tenants</span>
-                </NavLink>
+                {isSuperAdmin && (
+                  <NavLink
+                    to="/admin/tenants"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Companies / Tenants</span>
+                  </NavLink>
+                )}
                 <NavLink
                   to="/admin/users"
                   className={({ isActive }) =>
@@ -490,24 +485,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <Users className="w-3.5 h-3.5 text-slate-400" />
                   <span>Users Directory</span>
                 </NavLink>
-                <NavLink
-                  to="/admin/roles"
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                    }`
-                  }
-                >
-                  <Lock className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Roles & Permissions (RBAC)</span>
-                </NavLink>
+                {isSuperAdmin && (
+                  <NavLink
+                    to="/admin/roles"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <Lock className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Roles & Permissions (RBAC)</span>
+                  </NavLink>
+                )}
               </div>
             )}
           </div>
         )}
 
         {/* MODULE 09: System Settings */}
-        {isSuperAdmin && (
+        {canSeeM9 && (
           <div className="space-y-1">
             <button
               onClick={() => setOpenM9(!openM9)}
@@ -532,8 +529,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                 >
                   <ShieldCheck className="w-3.5 h-3.5 text-red-400" />
-                  <span>Super Admin HQ</span>
+                  <span>Super Admin Control Center</span>
                 </NavLink>
+
                 <NavLink
                   to="/admin/settings"
                   className={({ isActive }) =>
@@ -543,30 +541,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                 >
                   <Settings className="w-3.5 h-3.5 text-red-400" />
-                  <span>AWS, Redis & AI Models</span>
+                  <span>AWS & AI Provider Keys</span>
                 </NavLink>
               </div>
             )}
           </div>
         )}
 
-      </div>
-
-      {/* Footer User Card */}
-      <div className="p-4 border-t border-slate-800/80 bg-slate-950/40">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-sm text-indigo-400">
-            {isSuperAdmin ? 'SA' : 'TO'}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-slate-200 truncate">
-              {isSuperAdmin ? 'Super Admin' : 'Tenant Owner'}
-            </p>
-            <span className="inline-block px-2 py-0.5 text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20">
-              {userRole}
-            </span>
-          </div>
-        </div>
       </div>
     </aside>
   );
