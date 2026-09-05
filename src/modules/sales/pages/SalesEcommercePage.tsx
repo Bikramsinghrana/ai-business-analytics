@@ -50,10 +50,10 @@ export const SalesEcommercePage: React.FC = () => {
             </div>
             <div>
               <h1 className="text-xl font-extrabold text-white tracking-tight">
-                04. Sales & E-Commerce Suite
+                03. Sales CRM & Deals
               </h1>
               <p className="text-xs text-slate-400">
-                Manage CRM pipeline, product catalog stock, AI recommendation engines, and revenue metrics
+                Manage CRM leads, sales pipeline, AI sales assistant, and revenue performance
               </p>
             </div>
           </div>

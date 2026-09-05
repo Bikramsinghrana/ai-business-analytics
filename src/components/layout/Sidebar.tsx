@@ -9,20 +9,17 @@ import {
   TrendingUp, 
   Bot, 
   ShieldCheck, 
-  Settings,
-  Sparkles,
-  Database,
-  FileText,
-  ChevronDown,
-  Users,
-  Lock,
-  Cpu,
-  Layers,
-  Store,
-  DollarSign,
-  Search,
-  BrainCircuit,
-  BarChart3
+  Settings, 
+  Sparkles, 
+  Database, 
+  FileText, 
+  ChevronDown, 
+  Users, 
+  Lock, 
+  Cpu, 
+  Store, 
+  BarChart3,
+  Briefcase
 } from 'lucide-react';
 import { UserRole, FeatureKey } from '../../types/enums';
 
@@ -48,32 +45,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const isManager = userRole === UserRole.MANAGER;
   const isTenantOwner = userRole === UserRole.TENANT_OWNER;
 
-  // Role & Permission based module visibility
-  const canSeeM1 = isSuperAdmin || isTenantOwner || isManager || isCustomerOrClient;
-  const canSeeM2 = isSuperAdmin || isTenantOwner || isManager || isStaff || isDeveloper;
-  const canSeeM3 = isSuperAdmin || isTenantOwner || isManager || isStaff || isCustomerOrClient;
-  const canSeeM4 = isSuperAdmin || isTenantOwner || isManager;
-  const canSeeM5 = isSuperAdmin || isTenantOwner || isManager || isStaff || isCustomerOrClient;
-  const canSeeM6 = isSuperAdmin || isTenantOwner || isManager || isDeveloper;
-  const canSeeM7 = isSuperAdmin || isTenantOwner || isDeveloper;
-  const canSeeM8 = isSuperAdmin || isTenantOwner;
-  const canSeeM9 = isSuperAdmin;
+  // Role-based visibility for the 9 sorted modules
+  const canSeeM1 = true; // Executive Dashboard (all roles)
+  const canSeeM2 = isSuperAdmin || isTenantOwner || isManager || isStaff || isDeveloper; // AI Copilot
+  const canSeeM3 = isSuperAdmin || isTenantOwner || isManager; // Sales CRM & Deals
+  const canSeeM4 = isSuperAdmin || isTenantOwner || isManager || isStaff || isCustomerOrClient; // Commerce & Orders
+  const canSeeM5 = isSuperAdmin || isTenantOwner || isManager || isStaff || isCustomerOrClient; // Customer Support
+  const canSeeM6 = isSuperAdmin || isTenantOwner || isManager || isDeveloper; // Document Intelligence / RAG
+  const canSeeM7 = isSuperAdmin || isTenantOwner || isDeveloper; // BI & SQL Analytics
+  const canSeeM8 = isSuperAdmin || isTenantOwner; // Tenant & User Access
+  const canSeeM9 = isSuperAdmin; // System Settings
 
   const location = useLocation();
 
   // Collapsible dropdown states
-  const [openM1, setOpenM1] = useState<boolean>(location.pathname === '/dashboard' || location.pathname.startsWith('/sql-analyst'));
+  const [openM1, setOpenM1] = useState<boolean>(location.pathname === '/dashboard');
   const [openM2, setOpenM2] = useState<boolean>(location.pathname.startsWith('/ai-chat'));
-  const [openM3, setOpenM3] = useState<boolean>(
+  const [openM3, setOpenM3] = useState<boolean>(location.pathname.startsWith('/sales'));
+  const [openM4, setOpenM4] = useState<boolean>(
     location.pathname.startsWith('/products') ||
     location.pathname.startsWith('/orders') ||
     location.pathname.startsWith('/customers')
   );
-  const [openM4, setOpenM4] = useState<boolean>(location.pathname.startsWith('/sales'));
   const [openM5, setOpenM5] = useState<boolean>(location.pathname.startsWith('/support'));
   const [openM6, setOpenM6] = useState<boolean>(location.pathname.startsWith('/documents'));
-  const [openM7, setOpenM7] = useState<boolean>(location.pathname.startsWith('/sql-analyst') || location.pathname.startsWith('/analytics') || location.search.includes('mode=dev'));
-  const [openM8, setOpenM8] = useState<boolean>(location.pathname.startsWith('/admin/tenants') || location.pathname.startsWith('/admin/users'));
+  const [openM7, setOpenM7] = useState<boolean>(location.pathname.startsWith('/sql-analyst') || location.pathname.startsWith('/analytics') || location.pathname.startsWith('/bi'));
+  const [openM8, setOpenM8] = useState<boolean>(location.pathname.startsWith('/admin/tenants') || location.pathname.startsWith('/admin/users') || location.pathname.startsWith('/admin/roles'));
   const [openM9, setOpenM9] = useState<boolean>(location.pathname === '/admin' || location.pathname.startsWith('/admin/settings'));
 
   return (
@@ -90,9 +87,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Navigation Links */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-2.5 custom-scrollbar">
         
-        {/* MODULE 01: Executive BI */}
+        {/* MODULE 01: Executive Dashboard */}
         {canSeeM1 && (
           <div className="space-y-1">
             <button
@@ -101,7 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <span className="flex items-center gap-2">
                 <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
-                01. Executive BI
+                01. Dashboard
               </span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM1 ? 'rotate-180 text-indigo-400' : ''}`} />
             </button>
@@ -117,28 +114,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                 >
                   <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>Executive Dashboard</span>
+                  <span>Executive Overview</span>
                 </NavLink>
-
-                {features[FeatureKey.SQL_ANALYST] !== false && (
-                  <NavLink
-                    to="/sql-analyst"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <Database className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>SQL Analyst AI</span>
-                  </NavLink>
-                )}
               </div>
             )}
           </div>
         )}
 
-        {/* MODULE 02: AI Intelligence */}
+        {/* MODULE 02: AI Assistant & Copilot */}
         {canSeeM2 && (
           <div className="space-y-1">
             <button
@@ -147,7 +130,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <span className="flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                02. AI Intelligence
+                02. AI Workspace
               </span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM2 ? 'rotate-180 text-purple-400' : ''}`} />
             </button>
@@ -155,24 +138,45 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {openM2 && (
               <div className="pl-2 space-y-1 border-l-2 border-purple-500/30 ml-3">
                 {features[FeatureKey.AI_CHAT] !== false && (
-                  <NavLink
-                    to="/ai-chat"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <Bot className="w-3.5 h-3.5 text-purple-400" />
-                    <span>AI Assistant Studio</span>
-                  </NavLink>
+                  <>
+                    <NavLink
+                      to="/ai-chat"
+                      end
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive && !location.search.includes('mode=dev')
+                            ? 'bg-indigo-600 text-white shadow'
+                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <Bot className="w-3.5 h-3.5 text-purple-400" />
+                      <span>AI Assistant Studio</span>
+                    </NavLink>
+
+                    {isDeveloper && (
+                      <NavLink
+                        to="/ai-chat?mode=dev"
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                            isActive && location.search.includes('mode=dev')
+                              ? 'bg-indigo-600 text-white shadow'
+                              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                          }`
+                        }
+                      >
+                        <Cpu className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Developer & Supervisor</span>
+                      </NavLink>
+                    )}
+                  </>
                 )}
               </div>
             )}
           </div>
         )}
 
-        {/* MODULE 03: E-Commerce */}
+        {/* MODULE 03: Sales CRM & Deals */}
         {canSeeM3 && (
           <div className="space-y-1">
             <button
@@ -180,71 +184,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
-                <Store className="w-3.5 h-3.5 text-emerald-400" />
-                03. E-Commerce
+                <Briefcase className="w-3.5 h-3.5 text-amber-400" />
+                03. Sales CRM & Deals
               </span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM3 ? 'rotate-180 text-emerald-400' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM3 ? 'rotate-180 text-amber-400' : ''}`} />
             </button>
 
             {openM3 && (
-              <div className="pl-2 space-y-1 border-l-2 border-emerald-500/30 ml-3">
-                <NavLink
-                  to="/products"
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                    }`
-                  }
-                >
-                  <Package className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Product Catalog</span>
-                </NavLink>
-
-                <NavLink
-                  to="/orders"
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                    }`
-                  }
-                >
-                  <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Orders & Fulfillment</span>
-                </NavLink>
-
-                {!isCustomerOrClient && (
-                  <NavLink
-                    to="/customers"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <Users className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Customer Directory</span>
-                  </NavLink>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* MODULE 04: Sales & E-Commerce Suite */}
-        {canSeeM4 && (
-          <div className="space-y-1">
-            <button
-              onClick={() => setOpenM4(!openM4)}
-              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <DollarSign className="w-3.5 h-3.5 text-amber-400" />
-                04. Sales & E-Commerce Suite
-              </span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM4 ? 'rotate-180 text-amber-400' : ''}`} />
-            </button>
-
-            {openM4 && (
               <div className="pl-2 space-y-1 border-l-2 border-amber-500/30 ml-3">
                 {features[FeatureKey.SALES_AGENT] !== false && (
                   <>
@@ -259,21 +205,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       }
                     >
                       <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Sales Leads & CRM</span>
-                    </NavLink>
-
-                    <NavLink
-                      to="/sales?tab=catalog"
-                      className={({ isActive }) =>
-                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                          isActive && location.search.includes('tab=catalog')
-                            ? 'bg-indigo-600 text-white shadow'
-                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                        }`
-                      }
-                    >
-                      <Package className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Products & Inventory</span>
+                      <span>Sales Pipeline & Leads</span>
                     </NavLink>
 
                     <NavLink
@@ -310,7 +242,65 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* MODULE 05: Customer Support Agent */}
+        {/* MODULE 04: Commerce & Fulfillment */}
+        {canSeeM4 && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setOpenM4(!openM4)}
+              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Store className="w-3.5 h-3.5 text-emerald-400" />
+                04. Commerce
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM4 ? 'rotate-180 text-emerald-400' : ''}`} />
+            </button>
+
+            {openM4 && (
+              <div className="pl-2 space-y-1 border-l-2 border-emerald-500/30 ml-3">
+                <NavLink
+                  to="/products"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <Package className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Product Catalog</span>
+                </NavLink>
+
+                <NavLink
+                  to="/orders"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Orders & Fulfillment</span>
+                </NavLink>
+
+                {!isCustomerOrClient && (
+                  <NavLink
+                    to="/customers"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      }`
+                    }
+                  >
+                    <Users className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Customers Directory</span>
+                  </NavLink>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MODULE 05: Customer Support */}
         {canSeeM5 && (
           <div className="space-y-1">
             <button
@@ -318,14 +308,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
-                <Headphones className="w-3.5 h-3.5 text-purple-400" />
-                05. Customer Support Agent
+                <Headphones className="w-3.5 h-3.5 text-pink-400" />
+                05. Customer Support
               </span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM5 ? 'rotate-180 text-purple-400' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM5 ? 'rotate-180 text-pink-400' : ''}`} />
             </button>
 
             {openM5 && (
-              <div className="pl-2 space-y-1 border-l-2 border-purple-500/30 ml-3">
+              <div className="pl-2 space-y-1 border-l-2 border-pink-500/30 ml-3">
                 {features[FeatureKey.SUPPORT_AGENT] !== false && (
                   <>
                     <NavLink
@@ -339,7 +329,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         }`
                       }
                     >
-                      <Headphones className="w-3.5 h-3.5 text-purple-400" />
+                      <Headphones className="w-3.5 h-3.5 text-pink-400" />
                       <span>Support Inbox & Tickets</span>
                     </NavLink>
 
@@ -354,8 +344,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           }`
                         }
                       >
-                        <Users className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Customer 360 & Orders</span>
+                        <Users className="w-3.5 h-3.5 text-pink-400" />
+                        <span>Customer 360</span>
                       </NavLink>
                     )}
 
@@ -369,8 +359,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         }`
                       }
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                      <span>FAQs & Knowledge Base</span>
+                      <Sparkles className="w-3.5 h-3.5 text-pink-400" />
+                      <span>Knowledge FAQs</span>
                     </NavLink>
                   </>
                 )}
@@ -379,7 +369,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* MODULE 06: RAG & Document Intelligence */}
+        {/* MODULE 06: Document Intelligence & RAG */}
         {canSeeM6 && (
           <div className="space-y-1">
             <button
@@ -388,7 +378,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <span className="flex items-center gap-2">
                 <FileText className="w-3.5 h-3.5 text-cyan-400" />
-                06. RAG & Document Intelligence
+                06. Documents & RAG
               </span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM6 ? 'rotate-180 text-cyan-400' : ''}`} />
             </button>
@@ -422,7 +412,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <span className="flex items-center gap-2">
                 <BarChart3 className="w-3.5 h-3.5 text-violet-400" />
-                07. 📊 BI & SQL Agent
+                07. BI & SQL Analytics
               </span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM7 ? 'rotate-180 text-violet-400' : ''}`} />
             </button>
@@ -482,7 +472,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                 >
                   <BarChart3 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>BI Dashboards & KPIs</span>
+                  <span>BI Metrics & KPIs</span>
                 </NavLink>
 
                 <NavLink
@@ -512,24 +502,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <TrendingUp className="w-3.5 h-3.5 text-indigo-400" />
                   <span>Query Audit History</span>
                 </NavLink>
-
-                <NavLink
-                  to="/ai-chat?mode=dev"
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                    }`
-                  }
-                >
-                  <Cpu className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Developer & Supervisor</span>
-                </NavLink>
               </div>
             )}
           </div>
         )}
 
-        {/* MODULE 08: Management */}
+        {/* MODULE 08: Tenants & User Access */}
         {canSeeM8 && (
           <div className="space-y-1">
             <button
@@ -538,7 +516,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <span className="flex items-center gap-2">
                 <Lock className="w-3.5 h-3.5 text-slate-300" />
-                08. Management
+                08. Tenant & Access
               </span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM8 ? 'rotate-180 text-slate-300' : ''}`} />
             </button>
@@ -579,7 +557,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     }
                   >
                     <Lock className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Roles & Permissions (RBAC)</span>
+                    <span>Roles & Permissions</span>
                   </NavLink>
                 )}
               </div>
@@ -613,7 +591,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                 >
                   <ShieldCheck className="w-3.5 h-3.5 text-red-400" />
-                  <span>Super Admin Control Center</span>
+                  <span>Super Admin Control</span>
                 </NavLink>
 
                 <NavLink
