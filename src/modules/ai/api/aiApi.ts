@@ -1,5 +1,6 @@
 import { apiClient } from '../../../services/apiClient';
 import {
+  AgentMeta,
   AiConversation,
   AiSettings,
   AiUsageStats,
@@ -8,6 +9,7 @@ import {
   QuickPromptPayload,
   SendMessagePayload,
   SendMessageResponse,
+  ToolMeta,
 } from '../types/ai.types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
@@ -18,6 +20,18 @@ export const aiApi = {
 
   getPersonas: () =>
     apiClient.get<{ personas: PromptPersona[] }>('/ai/personas'),
+
+  getAgents: () =>
+    apiClient.get<{ agents: AgentMeta[]; count: number }>('/ai/agents'),
+
+  getTools: () =>
+    apiClient.get<{ tools: ToolMeta[]; count: number }>('/ai/tools'),
+
+  executeTool: (toolName: string, params: Record<string, any> = {}) =>
+    apiClient.post<{ success: boolean; message: string; data: any }>('/ai/tools/execute', {
+      tool_name: toolName,
+      params,
+    }),
 
   getSettings: () =>
     apiClient.get<{ settings: AiSettings }>('/ai/settings'),

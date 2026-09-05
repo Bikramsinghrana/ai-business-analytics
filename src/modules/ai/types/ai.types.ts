@@ -153,3 +153,14 @@ export interface AiUsageStats {
   }>;
 }
 
+export interface AgentMeta {
+  name: string;
+  description: string;
+  supported_search_types: string[];
+}
+
+export interface ToolMeta {
+  name: string;
+  description: string;
+}
+
