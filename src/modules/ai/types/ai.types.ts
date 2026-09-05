@@ -82,6 +82,15 @@ export interface CreateConversationPayload {
   model?: string;
 }
 
+export interface SendMessagePayload {
+  message: string;
+  search_type?: SearchType | string;
+  provider?: AIProvider | string;
+  model?: string;
+  system_prompt?: string;
+  temperature?: number;
+}
+
 export interface QuickPromptPayload extends SendMessagePayload {
   conversation_id?: string;
 }
@@ -91,6 +100,37 @@ export interface SendMessageResponse {
   assistant_message: AiMessage;
   agent_response?: AgentResponseMeta;
   conversation: AiConversation;
+  rate_limit?: {
+    limit: number;
+    remaining: number;
+  };
+}
+
+export interface PromptPersona {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  system_prompt: string;
+}
+
+export interface AiSettings {
+  default_provider: string;
+  default_model: string;
+  temperature: number;
+  max_tokens: number;
+  system_prompt: string;
+  memory_enabled: boolean;
+  streaming_enabled: boolean;
+  rate_limit_rpm: number;
+  response_format: 'markdown' | 'json';
+  api_keys: {
+    gemini?: string;
+    openai?: string;
+    claude?: string;
+    groq?: string;
+    openrouter?: string;
+  };
 }
 
 export interface AiUsageStats {
@@ -102,4 +142,14 @@ export interface AiUsageStats {
     tokens: number;
     count: number;
   }>;
+  recent_logs?: Array<{
+    id: string;
+    agent_id: string;
+    provider: string;
+    model: string;
+    total_tokens: number;
+    estimated_cost: number;
+    created_at: string;
+  }>;
 }
+

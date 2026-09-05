@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AiConversation } from '../types/ai.types';
-import { Plus, MessageSquare, Trash2, Search } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, Search, Edit2, Check, X } from 'lucide-react';
 
 interface ConversationSidebarProps {
   conversations: AiConversation[];
@@ -8,6 +8,7 @@ interface ConversationSidebarProps {
   onSelect: (id: string) => void;
   onNewChat: () => void;
   onDelete: (id: string) => void;
+  onRename?: (id: string, newTitle: string) => void;
   loading: boolean;
 }
 
@@ -17,13 +18,35 @@ export const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
   onSelect,
   onNewChat,
   onDelete,
+  onRename,
   loading,
 }) => {
   const [search, setSearch] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
 
   const filtered = conversations.filter((c) =>
     c.title.toLowerCase().includes(search.toLowerCase())
   );
+
+  const startEditing = (e: React.MouseEvent, conv: AiConversation) => {
+    e.stopPropagation();
+    setEditingId(conv.id);
+    setEditTitle(conv.title);
+  };
+
+  const saveEditing = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (editTitle.trim() && onRename) {
+      onRename(id, editTitle.trim());
+    }
+    setEditingId(null);
+  };
+
+  const cancelEditing = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingId(null);
+  };
 
   return (
     <aside className="w-72 flex-shrink-0 flex flex-col h-full bg-slate-900/80 backdrop-blur-md border-r border-slate-800 p-4 space-y-4">
@@ -61,6 +84,8 @@ export const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
         ) : (
           filtered.map((conv) => {
             const isActive = conv.id === activeId;
+            const isEditing = editingId === conv.id;
+
             return (
               <div
                 key={conv.id}
@@ -77,25 +102,63 @@ export const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
                       isActive ? 'text-indigo-400' : 'text-slate-500 group-hover:text-slate-400'
                     }`}
                   />
-                  <div className="truncate">
-                    <p className="truncate font-medium leading-snug">{conv.title}</p>
-                    <span className="text-[10px] text-slate-500 font-mono">
-                      {conv.provider} • {conv.model}
-                    </span>
+                  <div className="truncate flex-1">
+                    {isEditing ? (
+                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          className="w-full bg-slate-950 border border-indigo-500 rounded px-1.5 py-0.5 text-xs text-white focus:outline-none"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') saveEditing(e as any, conv.id);
+                            if (e.key === 'Escape') cancelEditing(e as any);
+                          }}
+                        />
+                        <button onClick={(e) => saveEditing(e, conv.id)} className="p-0.5 hover:text-emerald-400">
+                          <Check className="w-3 h-3" />
+                        </button>
+                        <button onClick={cancelEditing} className="p-0.5 hover:text-red-400">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="truncate font-medium leading-snug">{conv.title}</p>
+                        <span className="text-[10px] text-slate-500 font-mono">
+                          {conv.provider} • {conv.model}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(conv.id);
-                  }}
-                  className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 transition text-slate-500 rounded"
-                  title="Delete chat"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                {!isEditing && (
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+                    {onRename && (
+                      <button
+                        type="button"
+                        onClick={(e) => startEditing(e, conv)}
+                        className="p-1 hover:text-indigo-300 text-slate-500 rounded"
+                        title="Rename chat"
+                      >
+                        <Edit2 className="w-3 h-3" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(conv.id);
+                      }}
+                      className="p-1 hover:text-red-400 text-slate-500 rounded"
+                      title="Delete chat"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })

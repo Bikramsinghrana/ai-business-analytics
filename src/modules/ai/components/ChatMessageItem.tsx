@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
 import { AiMessage } from '../types/ai.types';
-import { Bot, User, Copy, Check, Wrench, Radio, Clock, ShieldCheck } from 'lucide-react';
+import { 
+  Bot, 
+  User, 
+  Copy, 
+  Check, 
+  Wrench, 
+  Radio, 
+  Clock, 
+  ShieldCheck, 
+  Volume2, 
+  VolumeX, 
+  Code2, 
+  FileText, 
+  Cpu 
+} from 'lucide-react';
 
 interface ChatMessageItemProps {
   message: AiMessage;
@@ -8,73 +22,150 @@ interface ChatMessageItemProps {
 
 export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => {
   const [copied, setCopied] = useState(false);
+  const [codeCopiedIndex, setCodeCopiedIndex] = useState<number | null>(null);
+  const [viewRawJson, setViewRawJson] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
   const isAi = message.sender === 'ai' || message.role === 'assistant';
   const meta = message.metadata || {};
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(message.content);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyText = (text: string, index?: number) => {
+    navigator.clipboard.writeText(text);
+    if (typeof index === 'number') {
+      setCodeCopiedIndex(index);
+      setTimeout(() => setCodeCopiedIndex(null), 2000);
+    } else {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
-  // Simple clean markdown parser for headings, lists, bold text and code snippets
+  const handleSpeak = () => {
+    if (!('speechSynthesis' in window)) return;
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(message.content);
+    utterance.rate = 1.0;
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Advanced clean markdown & code block renderer
   const renderFormattedContent = (content: string) => {
-    const lines = content.split('\n');
-    return lines.map((line, index) => {
-      // Headers
-      if (line.startsWith('#### ')) {
-        return (
-          <h4 key={index} className="text-xs font-bold text-indigo-300 mt-2 mb-1 uppercase tracking-wider">
-            {line.replace('#### ', '')}
-          </h4>
-        );
+    // Check if content contains fenced code blocks ```lang ... ```
+    const codeBlockRegex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+    let blockIndex = 0;
+
+    while ((match = codeBlockRegex.exec(content)) !== null) {
+      // Text before code block
+      if (match.index > lastIndex) {
+        parts.push(renderTextLines(content.substring(lastIndex, match.index), `text-${lastIndex}`));
       }
-      if (line.startsWith('### ')) {
-        return (
-          <h3 key={index} className="text-sm font-bold text-white mt-2 mb-1.5 flex items-center gap-1.5">
-            {line.replace('### ', '')}
-          </h3>
-        );
-      }
-      // Blockquotes
-      if (line.startsWith('> ')) {
-        return (
-          <blockquote key={index} className="p-2 bg-slate-950/60 border-l-2 border-indigo-500 rounded-r text-[11px] text-slate-300 my-1 font-mono">
-            {parseInlineFormatting(line.replace('> ', ''))}
-          </blockquote>
-        );
-      }
-      // Bullet items
-      if (line.startsWith('- ') || line.startsWith('* ')) {
-        const bulletText = line.substring(2);
-        return (
-          <li key={index} className="ml-4 list-disc text-xs leading-relaxed text-slate-300">
-            {parseInlineFormatting(bulletText)}
-          </li>
-        );
-      }
-      // Numbered lists
-      if (/^\d+\.\s/.test(line)) {
-        return (
-          <li key={index} className="ml-4 list-decimal text-xs leading-relaxed text-slate-300">
-            {parseInlineFormatting(line.replace(/^\d+\.\s/, ''))}
-          </li>
-        );
-      }
-      // Blank lines
-      if (!line.trim()) {
-        return <div key={index} className="h-1.5" />;
-      }
-      // Regular paragraph
-      return (
-        <p key={index} className="text-xs leading-relaxed text-slate-200">
-          {parseInlineFormatting(line)}
-        </p>
+
+      const lang = match[1] || 'code';
+      const code = match[2];
+      const currentBlock = blockIndex++;
+
+      parts.push(
+        <div key={`code-${match.index}`} className="my-3 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 font-mono text-[11px] shadow-lg">
+          <div className="flex items-center justify-between px-3.5 py-1.5 bg-slate-900 border-b border-slate-800 text-[10px] text-slate-400">
+            <span className="font-bold text-indigo-400 uppercase tracking-wider">{lang}</span>
+            <button
+              type="button"
+              onClick={() => handleCopyText(code, currentBlock)}
+              className="flex items-center gap-1 hover:text-white transition-colors"
+            >
+              {codeCopiedIndex === currentBlock ? (
+                <>
+                  <Check className="w-3 h-3 text-emerald-400" />
+                  <span className="text-emerald-400">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3 h-3" />
+                  <span>Copy Code</span>
+                </>
+              )}
+            </button>
+          </div>
+          <pre className="p-3.5 overflow-x-auto text-indigo-100 leading-relaxed custom-scrollbar">
+            <code>{code}</code>
+          </pre>
+        </div>
       );
-    });
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < content.length) {
+      parts.push(renderTextLines(content.substring(lastIndex), `text-${lastIndex}`));
+    }
+
+    return parts;
   };
 
-  // Inline formatting helper for **bold** and `code`
+  const renderTextLines = (text: string, keyPrefix: string) => {
+    const lines = text.split('\n');
+    return (
+      <div key={keyPrefix} className="space-y-1">
+        {lines.map((line, index) => {
+          if (line.startsWith('#### ')) {
+            return (
+              <h4 key={index} className="text-xs font-bold text-indigo-300 mt-2 mb-1 uppercase tracking-wider">
+                {line.replace('#### ', '')}
+              </h4>
+            );
+          }
+          if (line.startsWith('### ')) {
+            return (
+              <h3 key={index} className="text-sm font-bold text-white mt-2 mb-1.5 flex items-center gap-1.5">
+                {line.replace('### ', '')}
+              </h3>
+            );
+          }
+          if (line.startsWith('> ')) {
+            return (
+              <blockquote key={index} className="p-2 bg-slate-950/60 border-l-2 border-indigo-500 rounded-r text-[11px] text-slate-300 my-1 font-mono">
+                {parseInlineFormatting(line.replace('> ', ''))}
+              </blockquote>
+            );
+          }
+          if (line.startsWith('- ') || line.startsWith('* ')) {
+            return (
+              <li key={index} className="ml-4 list-disc text-xs leading-relaxed text-slate-300">
+                {parseInlineFormatting(line.substring(2))}
+              </li>
+            );
+          }
+          if (/^\d+\.\s/.test(line)) {
+            return (
+              <li key={index} className="ml-4 list-decimal text-xs leading-relaxed text-slate-300">
+                {parseInlineFormatting(line.replace(/^\d+\.\s/, ''))}
+              </li>
+            );
+          }
+          if (!line.trim()) {
+            return <div key={index} className="h-1.5" />;
+          }
+          return (
+            <p key={index} className="text-xs leading-relaxed text-slate-200">
+              {parseInlineFormatting(line)}
+            </p>
+          );
+        })}
+      </div>
+    );
+  };
+
   const parseInlineFormatting = (text: string) => {
     const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
     return parts.map((part, i) => {
@@ -104,14 +195,20 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => 
         </div>
       )}
 
-      <div className={`max-w-2xl flex flex-col space-y-1.5 ${isAi ? 'items-start' : 'items-end'}`}>
-        {/* Agent & Search Domain Badges Header */}
-        {isAi && (meta.agent_name || meta.search_type || meta.is_real_time) && (
+      <div className={`max-w-3xl flex flex-col space-y-1.5 ${isAi ? 'items-start' : 'items-end'}`}>
+        {/* Badges Header */}
+        {isAi && (meta.agent_name || meta.search_type || meta.model || meta.is_real_time) && (
           <div className="flex flex-wrap items-center gap-1.5 mb-1">
             {meta.agent_name && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-[10px] font-semibold text-indigo-300">
                 <ShieldCheck className="w-3 h-3 text-indigo-400" />
                 <span>{meta.agent_name}</span>
+              </span>
+            )}
+            {meta.model && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-[10px] font-mono text-purple-300">
+                <Cpu className="w-3 h-3 text-purple-400" />
+                <span>{meta.model}</span>
               </span>
             )}
             {meta.search_type && (
@@ -146,17 +243,23 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => 
 
         {/* Message Bubble */}
         <div
-          className={`p-4 rounded-2xl text-xs relative ${
+          className={`p-4 rounded-2xl text-xs relative w-full ${
             isAi
               ? 'bg-slate-900/90 border border-slate-800 text-slate-200 rounded-tl-none shadow-md backdrop-blur-sm'
               : 'bg-indigo-600 text-white rounded-tr-none shadow-md shadow-indigo-600/20'
           }`}
         >
-          <div className="space-y-1">
-            {isAi ? renderFormattedContent(message.content) : <p className="leading-relaxed">{message.content}</p>}
-          </div>
+          {viewRawJson ? (
+            <pre className="p-3 bg-slate-950 rounded-xl overflow-x-auto text-[11px] font-mono text-emerald-400">
+              {JSON.stringify(message, null, 2)}
+            </pre>
+          ) : isAi ? (
+            renderFormattedContent(message.content)
+          ) : (
+            <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
+          )}
 
-          {/* Footer Metadata */}
+          {/* Footer Metadata & Actions */}
           <div className="mt-2.5 pt-2 border-t border-slate-800/60 flex flex-wrap items-center justify-between text-[10px] text-slate-400 gap-2">
             <div className="flex items-center gap-2">
               {meta.source && (
@@ -180,15 +283,36 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => 
 
             <div className="flex items-center gap-2 ml-auto">
               <span>{message.created_at ? new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}</span>
+
               {isAi && (
-                <button
-                  type="button"
-                  onClick={handleCopy}
-                  className="opacity-0 group-hover:opacity-100 hover:text-white transition p-0.5"
-                  title="Copy response"
-                >
-                  {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={handleSpeak}
+                    className="hover:text-white transition p-0.5"
+                    title={isSpeaking ? 'Stop speaking' : 'Read aloud'}
+                  >
+                    {isSpeaking ? <VolumeX className="w-3.5 h-3.5 text-indigo-400" /> : <Volume2 className="w-3.5 h-3.5" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setViewRawJson(!viewRawJson)}
+                    className="hover:text-white transition p-0.5"
+                    title={viewRawJson ? 'View formatted' : 'View raw JSON'}
+                  >
+                    {viewRawJson ? <FileText className="w-3.5 h-3.5 text-indigo-400" /> : <Code2 className="w-3.5 h-3.5" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCopyText(message.content)}
+                    className="hover:text-white transition p-0.5"
+                    title="Copy response"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </>
               )}
             </div>
           </div>
