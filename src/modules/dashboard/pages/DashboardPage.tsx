@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { CustomerDashboardPage } from './CustomerDashboardPage';
 import { MerchantDashboardPage } from './MerchantDashboardPage';
-import { Card } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
-import { Sparkles, TrendingUp, Users, ShoppingBag, ArrowUpRight, Package, ShieldCheck, Store, User } from 'lucide-react';
+import { ExecutiveBiDashboardView } from '../components/ExecutiveBiDashboardView';
+import { ShieldCheck, Store, User } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
   const [activeRole, setActiveRole] = useState<'ADMIN' | 'MERCHANT' | 'CUSTOMER'>('ADMIN');
@@ -26,7 +25,7 @@ export const DashboardPage: React.FC = () => {
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>👑 Super Admin HQ</span>
+            <span>👑 Super Admin HQ (BI & KPIs)</span>
           </button>
 
           <button
@@ -54,28 +53,7 @@ export const DashboardPage: React.FC = () => {
       {/* Dynamic Dashboard View */}
       {activeRole === 'CUSTOMER' && <CustomerDashboardPage />}
       {activeRole === 'MERCHANT' && <MerchantDashboardPage />}
-
-      {activeRole === 'ADMIN' && (
-        <div className="space-y-6">
-          {/* Welcome Banner */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-900/60 via-purple-900/40 to-slate-900 p-8 border border-indigo-500/20 shadow-2xl">
-            <div className="relative z-10 max-w-2xl space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Super Admin Multi-Tenant Control Center</span>
-              </div>
-              <h1 className="text-3xl font-extrabold text-white tracking-tight">
-                Global Platform Executive Control
-              </h1>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Full administrative access across all 10 platform modules, tenant provisioning, AI providers, sales CRM pipelines, and document intelligence.
-              </p>
-            </div>
-          </div>
-
-          <MerchantDashboardPage />
-        </div>
-      )}
+      {activeRole === 'ADMIN' && <ExecutiveBiDashboardView />}
 
     </div>
   );

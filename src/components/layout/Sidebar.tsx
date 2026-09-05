@@ -72,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [openM4, setOpenM4] = useState<boolean>(location.pathname.startsWith('/sales'));
   const [openM5, setOpenM5] = useState<boolean>(location.pathname.startsWith('/support'));
   const [openM6, setOpenM6] = useState<boolean>(location.pathname.startsWith('/documents'));
-  const [openM7, setOpenM7] = useState<boolean>(location.search.includes('mode=dev'));
+  const [openM7, setOpenM7] = useState<boolean>(location.pathname.startsWith('/sql-analyst') || location.pathname.startsWith('/analytics') || location.search.includes('mode=dev'));
   const [openM8, setOpenM8] = useState<boolean>(location.pathname.startsWith('/admin/tenants') || location.pathname.startsWith('/admin/users'));
   const [openM9, setOpenM9] = useState<boolean>(location.pathname === '/admin' || location.pathname.startsWith('/admin/settings'));
 
@@ -413,7 +413,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* MODULE 07: Agent Studio */}
+        {/* MODULE 07: Business Intelligence & SQL Agent */}
         {canSeeM7 && (
           <div className="space-y-1">
             <button
@@ -421,14 +421,98 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
-                <Layers className="w-3.5 h-3.5 text-violet-400" />
-                07. Agent Studio
+                <BarChart3 className="w-3.5 h-3.5 text-violet-400" />
+                07. 📊 BI & SQL Agent
               </span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM7 ? 'rotate-180 text-violet-400' : ''}`} />
             </button>
 
             {openM7 && (
               <div className="pl-2 space-y-1 border-l-2 border-violet-500/30 ml-3">
+                <NavLink
+                  to="/sql-analyst?tab=analyst"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive && (!location.search || location.search.includes('tab=analyst'))
+                        ? 'bg-indigo-600 text-white shadow'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <Bot className="w-3.5 h-3.5 text-violet-400" />
+                  <span>AI SQL Analyst</span>
+                </NavLink>
+
+                <NavLink
+                  to="/sql-analyst?tab=schema"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive && location.search.includes('tab=schema')
+                        ? 'bg-indigo-600 text-white shadow'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <Database className="w-3.5 h-3.5 text-violet-400" />
+                  <span>Schema Explorer</span>
+                </NavLink>
+
+                <NavLink
+                  to="/sql-analyst?tab=sandbox"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive && location.search.includes('tab=sandbox')
+                        ? 'bg-indigo-600 text-white shadow'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Read-Only Sandbox</span>
+                </NavLink>
+
+                <NavLink
+                  to="/sql-analyst?tab=dashboard"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive && location.search.includes('tab=dashboard')
+                        ? 'bg-indigo-600 text-white shadow'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <BarChart3 className="w-3.5 h-3.5 text-amber-400" />
+                  <span>BI Dashboards & KPIs</span>
+                </NavLink>
+
+                <NavLink
+                  to="/sql-analyst?tab=reports"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive && location.search.includes('tab=reports')
+                        ? 'bg-indigo-600 text-white shadow'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Reports & Schedules</span>
+                </NavLink>
+
+                <NavLink
+                  to="/sql-analyst?tab=history"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive && location.search.includes('tab=history')
+                        ? 'bg-indigo-600 text-white shadow'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <TrendingUp className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Query Audit History</span>
+                </NavLink>
+
                 <NavLink
                   to="/ai-chat?mode=dev"
                   className={({ isActive }) =>
@@ -437,7 +521,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     }`
                   }
                 >
-                  <Cpu className="w-3.5 h-3.5 text-violet-400" />
+                  <Cpu className="w-3.5 h-3.5 text-purple-400" />
                   <span>Developer & Supervisor</span>
                 </NavLink>
               </div>
