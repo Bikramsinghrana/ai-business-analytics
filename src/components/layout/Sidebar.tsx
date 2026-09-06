@@ -22,7 +22,14 @@ import {
   Briefcase,
   Code2,
   Layers,
-  TestTube
+  TestTube,
+  Zap,
+  Globe,
+  CreditCard,
+  Workflow,
+  Image as ImageIcon,
+  Menu as MenuIcon,
+  Bell
 } from 'lucide-react';
 import { UserRole, FeatureKey } from '../../types/enums';
 
@@ -59,6 +66,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const canSeeM6 = isSuperAdmin || isTenantOwner || isManager || isStaff;
   const canSeeM7 = isSuperAdmin || isTenantOwner || isManager;
   const canSeeMultiAgent = isSuperAdmin || isTenantOwner || isManager || isStaff;
+  const canSeeAutomation = isSuperAdmin || isTenantOwner || isManager || isStaff;
+  const canSeeCms = isSuperAdmin || isTenantOwner || isManager || isStaff;
+  const canSeeBilling = isSuperAdmin || isTenantOwner || isManager;
   const canSeeM8 = isSuperAdmin || isTenantOwner;
   const canSeeM9 = isSuperAdmin;
 
@@ -75,6 +85,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [openM6, setOpenM6] = useState<boolean>(location.pathname.startsWith('/documents'));
   const [openM7, setOpenM7] = useState<boolean>(location.pathname.startsWith('/sql-analyst') || location.pathname.startsWith('/analytics') || location.pathname.startsWith('/bi'));
   const [openMultiAgent, setOpenMultiAgent] = useState<boolean>(location.pathname.startsWith('/multi-agent') || location.pathname.startsWith('/developer-agent'));
+  const [openAutomation, setOpenAutomation] = useState<boolean>(location.pathname.startsWith('/automation'));
+  const [openCms, setOpenCms] = useState<boolean>(location.pathname.startsWith('/cms'));
+  const [openBilling, setOpenBilling] = useState<boolean>(location.pathname.startsWith('/billing') || location.pathname.startsWith('/subscription') || location.pathname.startsWith('/saas'));
   const [openM8, setOpenM8] = useState<boolean>(location.pathname.startsWith('/admin/tenants') || location.pathname.startsWith('/admin/users') || location.pathname.startsWith('/admin/roles'));
   const [openM9, setOpenM9] = useState<boolean>(location.pathname === '/admin' || location.pathname.startsWith('/admin/settings'));
 
@@ -556,7 +569,153 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* MODULE 09: Tenants & User Access */}
+        {/* MODULE 09: Automation & Workflows */}
+        {canSeeAutomation && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setOpenAutomation(!openAutomation)}
+              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Zap className="w-3.5 h-3.5 text-orange-400" />
+                09. Automation
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openAutomation ? 'rotate-180 text-orange-400' : ''}`} />
+            </button>
+
+            {openAutomation && (
+              <div className="pl-2 space-y-1 border-l-2 border-orange-500/30 ml-3">
+                <NavLink
+                  to="/automation/workflows"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-orange-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <Workflow className="w-3.5 h-3.5 text-orange-400" />
+                  <span>Workflow Builder</span>
+                </NavLink>
+
+                <NavLink
+                  to="/automation/notifications"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-orange-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <Bell className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Notification Templates</span>
+                </NavLink>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MODULE 10: Dynamic CMS & Media */}
+        {canSeeCms && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setOpenCms(!openCms)}
+              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                10. Dynamic CMS
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openCms ? 'rotate-180 text-cyan-400' : ''}`} />
+            </button>
+
+            {openCms && (
+              <div className="pl-2 space-y-1 border-l-2 border-cyan-500/30 ml-3">
+                <NavLink
+                  to="/cms/pages"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Pages & SEO</span>
+                </NavLink>
+
+                <NavLink
+                  to="/cms/menus"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <MenuIcon className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Navigation Menus</span>
+                </NavLink>
+
+                <NavLink
+                  to="/cms/media"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <ImageIcon className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Media Assets</span>
+                </NavLink>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MODULE 11: SaaS Plans & Billing */}
+        {canSeeBilling && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setOpenBilling(!openBilling)}
+              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
+                11. SaaS & Billing
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openBilling ? 'rotate-180 text-emerald-400' : ''}`} />
+            </button>
+
+            {openBilling && (
+              <div className="pl-2 space-y-1 border-l-2 border-emerald-500/30 ml-3">
+                <NavLink
+                  to="/billing"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Plans & Invoices</span>
+                </NavLink>
+
+                <NavLink
+                  to="/billing?tab=quotas"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive && location.search.includes('tab=quotas')
+                        ? 'bg-emerald-600 text-white shadow'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <TrendingUp className="w-3.5 h-3.5 text-teal-400" />
+                  <span>Usage & Quotas</span>
+                </NavLink>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MODULE 12: Tenants & User Access */}
         {canSeeM8 && (
           <div className="space-y-1">
             <button
@@ -565,7 +724,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <span className="flex items-center gap-2">
                 <Lock className="w-3.5 h-3.5 text-slate-300" />
-                09. Tenant & Access
+                12. Tenant & Access
               </span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM8 ? 'rotate-180 text-slate-300' : ''}`} />
             </button>
@@ -614,7 +773,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* MODULE 09: System Settings */}
+        {/* MODULE 13: System Settings */}
         {canSeeM9 && (
           <div className="space-y-1">
             <button
@@ -623,7 +782,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <span className="flex items-center gap-2">
                 <Settings className="w-3.5 h-3.5 text-red-400" />
-                09. System Settings
+                13. System Settings
               </span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM9 ? 'rotate-180 text-red-400' : ''}`} />
             </button>

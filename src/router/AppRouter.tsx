@@ -16,6 +16,9 @@ import { CustomerSupportPage } from '../modules/support/pages/CustomerSupportPag
 import { SalesEcommercePage } from '../modules/sales/pages/SalesEcommercePage';
 import { SQLAnalystPage } from '../modules/bi/pages/SQLAnalystPage';
 import { MultiAgentStudioPage } from '../modules/multi-agent/pages/MultiAgentStudioPage';
+import { AutomationWorkflowsPage } from '../modules/automation/pages/AutomationWorkflowsPage';
+import { DynamicCmsPage } from '../modules/cms/pages/DynamicCmsPage';
+import { SaaSManagementPage } from '../modules/billing/pages/SaaSManagementPage';
 import { LoginPage } from '../modules/auth/pages/LoginPage';
 import { RegisterPage } from '../modules/auth/pages/RegisterPage';
 import { ProfilePage } from '../modules/users/pages/ProfilePage';
@@ -115,6 +118,17 @@ export const AppRouter: React.FC = () => {
                   <Route path="/knowledge" element={<KnowledgeBasePage />} />
                   <Route path="/multi-agent" element={<MultiAgentStudioPage />} />
                   <Route path="/developer-agent" element={<MultiAgentStudioPage />} />
+                  <Route path="/automation" element={<AutomationWorkflowsPage />} />
+                  <Route path="/automation/workflows" element={<AutomationWorkflowsPage />} />
+                  <Route path="/automation/notifications" element={<AutomationWorkflowsPage />} />
+                  <Route path="/cms" element={<DynamicCmsPage />} />
+                  <Route path="/cms/pages" element={<DynamicCmsPage />} />
+                  <Route path="/cms/menus" element={<DynamicCmsPage />} />
+                  <Route path="/cms/media" element={<DynamicCmsPage />} />
+                  <Route path="/billing" element={<SaaSManagementPage />} />
+                  <Route path="/subscription" element={<SaaSManagementPage />} />
+                  <Route path="/saas" element={<SaaSManagementPage />} />
+                  <Route path="/plans" element={<SaaSManagementPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>
