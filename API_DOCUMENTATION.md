@@ -1,6 +1,6 @@
 # 📡 AURA AI Business Platform — Complete API Reference & Request Flow
 
-This is the comprehensive API reference and request flow documentation for the **AURA AI Business Platform**. It documents all active API endpoints, request header propagation, authentication payloads, request bodies, and standardized JSON response unwrapping formats.
+This is the comprehensive API reference and request flow documentation for the **AURA AI Business Platform**. It documents all active API endpoints across all 12 platform modules, request header propagation, authentication payloads, request bodies, and standardized JSON response unwrapping formats.
 
 ---
 
@@ -14,30 +14,30 @@ sequenceDiagram
     participant Interceptor as Request Interceptor
     participant Router as Laravel Router (routes/api.php)
     participant Middleware as Auth & Tenant Middleware (X-Tenant-ID)
-    participant Controller as Module Controller (CustomerSupportController, etc.)
-    participant Service as Business Domain Service (SupportTicketService, etc.)
-    participant DB as MySQL Database / RAG Vector Store
+    participant Controller as Module Controller (SuperAdmin, Support, BI, etc.)
+    participant Service as Business Domain Service Layer
+    participant DB as MySQL Database / Redis / AI Gateway
 
-    User->>Axios: Call supportApi.getTickets()
+    User->>Axios: Call moduleApi.action()
     Axios->>Interceptor: Inject Bearer Token & X-Tenant-ID Header
-    Interceptor->>Router: HTTP GET /api/v1/support/tickets
+    Interceptor->>Router: HTTP GET/POST /api/v1/{module}/{action}
     Router->>Middleware: Validate Bearer JWT & Resolve Tenant Scope
-    Middleware->>Controller: Route to CustomerSupportController@index
-    Controller->>Service: $ticketService->getTickets($tenantId, $filters)
-    Service->>DB: Query Eloquent Models with TenantIsolation
-    DB-->>Service: Return Models Array / Paginated Set
-    Service-->>Controller: Return Domain Data
-    Controller-->>Router: return response()->json(['success' => true, 'data' => $tickets])
-    Router-->>Axios: HTTP 200 OK Response Payload
+    Middleware->>Controller: Route to Controller Method
+    Controller->>Service: Execute Domain Business Logic
+    Service->>DB: Query / Mutate Isolated Tenant Data
+    DB-->>Service: Return Domain Results
+    Service-->>Controller: Return Model / Array Data
+    Controller-->>Router: return response()->json(['success' => true, 'data' => $data])
+    Router-->>Axios: HTTP 200/201 Response Payload
     Axios->>Axios: Response Interceptor unwraps response.data -> ApiResponse<T>
-    Axios-->>User: Returns clean { data: SupportTicket[], meta?: ApiMeta } object
+    Axios-->>User: Returns clean { data: T, meta?: ApiMeta } object
 ```
 
 ---
 
 ## 🌐 2. Base URL & Required Request Headers
 
-- **Base URL**: `http://localhost:8000/api/v1`
+- **Base URL**: `http://localhost/ai-business-platform/public/api/v1` (or `http://localhost:8000/api/v1`)
 - **Protocol**: HTTP / HTTPS
 - **Data Format**: `JSON`
 
@@ -62,18 +62,16 @@ All endpoints return a uniform response using `App\Traits\ApiResponse`:
   "message": "Human-readable description",
   "data": { ... },
   "meta": {
-    "timestamp": "2026-09-01T22:40:00+05:30",
+    "timestamp": "2026-09-06T19:00:00+05:30",
     "version": "v1"
   },
   "errors": null
 }
 ```
 
-> **Client Unwrapping Rule**: In `apiClient.ts`, `apiClient.get(...)` returns `response.data` (which IS the `ApiResponse<T>` wrapper object containing `.success`, `.data`, `.message`). API callers in modules access `res.data` directly to get `T`.
-
 ---
 
-## 🔐 4. Authentication & Profile APIs
+## 🔐 4. Module 01: Authentication & Multi-Tenancy APIs
 
 ### 4.1 User Login
 - **Endpoint**: `POST /api/v1/auth/login`
@@ -87,7 +85,7 @@ All endpoints return a uniform response using `App\Traits\ApiResponse`:
 }
 ```
 
-#### Response Payload (`200 OK`)
+#### Response (`200 OK`)
 ```json
 {
   "success": true,
@@ -97,223 +95,224 @@ All endpoints return a uniform response using `App\Traits\ApiResponse`:
       "id": "fcff1a51-91e7-4f3e-9cf4-aaf99ec45105",
       "name": "System Admin",
       "email": "admin@gmail.com",
-      "role": "SUPER_ADMIN",
-      "status": "ACTIVE"
+      "role": "SUPER_ADMIN"
     },
-    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..."
+    "token": "1|eyJ0eXAiOiJKV1QiLCJhbGciOi...",
+    "tenants": [
+      {
+        "id": "11111111-1111-1111-1111-111111111111",
+        "name": "Acme Global Corporation",
+        "role": "TENANT_OWNER"
+      }
+    ]
   }
 }
 ```
 
+### 4.2 User Registration
+- **Endpoint**: `POST /api/v1/auth/register`
+- **Request Body**: `{ "name": "Bikram", "email": "bikram@aura.com", "password": "password123", "company_name": "Aura AI" }`
+
+### 4.3 Tenant Switching
+- **Endpoint**: `POST /api/v1/tenants/switch`
+- **Request Body**: `{ "tenant_id": "11111111-1111-1111-1111-111111111111" }`
+
 ---
 
-## 🎧 5. Module 10: Customer Support Agent Suite APIs
+## 🤖 5. Module 02: AI Copilot & Assistant APIs
 
-### 5.1 List Support Tickets
+### 5.1 Send AI Message (Streaming / Multi-LLM)
+- **Endpoint**: `POST /api/v1/chat/message`
+- **Request Body**:
+```json
+{
+  "conversation_id": "conv-12345",
+  "message": "Summarize Q3 revenue performance",
+  "model": "gemini-2.5-pro",
+  "stream": false
+}
+```
+
+### 5.2 Get Conversations
+- **Endpoint**: `GET /api/v1/chat/conversations`
+
+### 5.3 Clear Conversation
+- **Endpoint**: `DELETE /api/v1/chat/conversations/{id}`
+
+---
+
+## 💼 6. Module 03: Sales CRM & Pipeline APIs
+
+### 6.1 Get Deals Pipeline
+- **Endpoint**: `GET /api/v1/sales/pipeline`
+- **Response**: List of leads & deals grouped by stage (`lead`, `qualified`, `proposal`, `negotiation`, `closed_won`, `closed_lost`).
+
+### 6.2 Create Sales Lead
+- **Endpoint**: `POST /api/v1/sales/leads`
+- **Request Body**: `{ "name": "John Doe", "company": "TechCorp", "value": 15000, "status": "qualified" }`
+
+### 6.3 AI Sales Studio Generation
+- **Endpoint**: `POST /api/v1/sales/ai/outreach`
+- **Request Body**: `{ "lead_id": "lead-123", "tone": "professional", "goal": "Book a 15min demo" }`
+
+---
+
+## 🛒 7. Module 04: Commerce & Order Management APIs
+
+### 7.1 Product Catalog
+- **Endpoint**: `GET /api/v1/products`
+- **Query Params**: `?category=electronics&search=laptop&page=1`
+
+### 7.2 Orders List & Tracking
+- **Endpoint**: `GET /api/v1/orders`
+- **Create Order**: `POST /api/v1/orders`
+- **Update Status**: `PATCH /api/v1/orders/{id}/status` `{ "status": "shipped" }`
+
+### 7.3 Customers Directory
+- **Endpoint**: `GET /api/v1/customers`
+
+---
+
+## 🎧 8. Module 05: Customer Support & Ticketing APIs
+
+### 8.1 Support Tickets
 - **Endpoint**: `GET /api/v1/support/tickets`
-- **Auth Required**: Yes (`Bearer {token}`)
-- **Query Params**: `search`, `status`, `priority`, `category`, `per_page`
+- **Create Ticket**: `POST /api/v1/support/tickets`
+- **Update Ticket**: `PATCH /api/v1/support/tickets/{id}`
 
-#### Response Payload (`200 OK`)
-```json
-{
-  "success": true,
-  "message": "Support tickets retrieved successfully.",
-  "data": [
-    {
-      "id": "8c57394b-0795-4948-9ee9-ef0fb0e34eb1",
-      "ticket_number": "TCK-882194",
-      "subject": "Delayed Order Dispatch #ORD-99120",
-      "category": "Shipping",
-      "priority": "HIGH",
-      "status": "OPEN",
-      "sentiment_score": 0.85,
-      "sentiment_label": "Frustrated",
-      "sla_due_at": "2026-09-02T10:00:00.000000Z",
-      "customer": {
-        "id": "c1111111-1111-1111-1111-111111111111",
-        "name": "Bikram Singh",
-        "email": "bikram@example.com"
-      }
-    }
-  ]
-}
-```
+### 8.2 AI Support Reply Suggestion
+- **Endpoint**: `POST /api/v1/support/tickets/{id}/suggest-reply`
+
+### 8.3 Knowledge FAQs
+- **Endpoint**: `GET /api/v1/support/faqs`
+- **Create FAQ**: `POST /api/v1/support/faqs`
 
 ---
 
-### 5.2 Create Support Ticket
-- **Endpoint**: `POST /api/v1/support/tickets`
-- **Auth Required**: Yes (`Bearer {token}`)
+## 📚 9. Module 06: Document Intelligence & RAG APIs
 
-#### Request Body
-```json
-{
-  "subject": "Cannot download tax invoice PDF",
-  "description": "Clicking download invoice throws 404 error",
-  "category": "Billing",
-  "priority": "MEDIUM"
-}
-```
+### 9.1 Upload Knowledge Document
+- **Endpoint**: `POST /api/v1/documents/upload` (Multipart form-data)
+- **Parameters**: `file`, `title`, `category`
 
----
+### 9.2 Semantic RAG Search
+- **Endpoint**: `POST /api/v1/documents/search`
+- **Request Body**: `{ "query": "What is our cancellation policy?", "limit": 5 }`
 
-### 5.3 Generate Grounded AI Response
-- **Endpoint**: `POST /api/v1/support/tickets/{id}/ai-respond`
-- **Auth Required**: Yes (`Bearer {token}`)
-
-#### Request Body
-```json
-{
-  "query": "Where is my shipment?"
-}
-```
-
-#### Response Payload (`200 OK`)
-```json
-{
-  "success": true,
-  "message": "AI support response generated.",
-  "data": {
-    "message": "Hello Bikram, your order #ORD-99120 was shipped via FedEx tracking #FX-881920 and is scheduled for delivery tomorrow.",
-    "confidence_score": 0.96
-  }
-}
-```
+### 9.3 Ask Document Q&A
+- **Endpoint**: `POST /api/v1/documents/ask`
+- **Request Body**: `{ "document_id": "doc-123", "question": "Explain payment terms in section 4" }`
 
 ---
 
-### 5.4 AI Sentiment Analysis & Ticket Classification
-- **Endpoint**: `POST /api/v1/support/tickets/{id}/analyze`
-- **Auth Required**: Yes (`Bearer {token}`)
+## 📊 10. Module 07: Business Intelligence & AI SQL Analyst APIs
 
-#### Response Payload (`200 OK`)
-```json
-{
-  "success": true,
-  "message": "Ticket analyzed successfully.",
-  "data": {
-    "category": "Shipping",
-    "priority": "HIGH",
-    "sentiment_score": 0.88,
-    "sentiment_label": "Frustrated",
-    "key_issues": ["Package delayed", "Tracking update missing"]
-  }
-}
-```
+### 10.1 Natural Language Query
+- **Endpoint**: `POST /api/v1/bi/query`
+- **Request Body**: `{ "prompt": "Show top 5 customers by revenue this month" }`
+- **Response**: Generated read-only SQL, tabular result set, and chart configuration.
+
+### 10.2 Database Schema Explorer
+- **Endpoint**: `GET /api/v1/bi/schema`
+
+### 10.3 Run Read-Only Sandbox SQL
+- **Endpoint**: `POST /api/v1/bi/sandbox/execute`
+- **Request Body**: `{ "sql": "SELECT COUNT(*) as total_orders FROM orders WHERE status = 'completed'" }`
 
 ---
 
-### 5.5 AI Smart Reply Suggestions
-- **Endpoint**: `GET /api/v1/support/tickets/{id}/suggest-responses`
-- **Auth Required**: Yes (`Bearer {token}`)
+## 🧠 11. Module 08: Multi-Agent & Developer Studio APIs
 
-#### Response Payload (`200 OK`)
-```json
-{
-  "success": true,
-  "message": "Response suggestions generated.",
-  "data": [
-    "I have checked your shipment #ORD-99120 and updated your delivery status.",
-    "Our warehouse has dispatched your replacement package via priority express.",
-    "I apologize for the delay; I have issued a \$15 shipping credit to your account."
-  ]
-}
-```
+### 11.1 Supervisor Task Orchestration
+- **Endpoint**: `POST /api/v1/agents/supervisor/dispatch`
+- **Request Body**: `{ "task": "Analyze customer support trends and generate an executive report" }`
+
+### 11.2 Developer Code Review & Explanation
+- **Endpoint**: `POST /api/v1/developer/review`
+- **Request Body**: `{ "code": "function calculateRevenue(...) { ... }", "language": "typescript" }`
+
+### 11.3 AI Test Case Generator
+- **Endpoint**: `POST /api/v1/developer/generate-tests`
+- **Request Body**: `{ "code": "...", "framework": "jest" }`
 
 ---
 
-### 5.6 Customer 360 Profile Lookup
-- **Endpoint**: `GET /api/v1/support/customers/{customerId}/profile`
-- **Auth Required**: Yes (`Bearer {token}`)
+## ⚙️ 12. Module 09: Automation & Workflow Engine APIs
 
-#### Response Payload (`200 OK`)
-```json
-{
-  "success": true,
-  "message": "Customer 360 profile retrieved.",
-  "data": {
-    "customer": {
-      "id": "c1111111-1111-1111-1111-111111111111",
-      "name": "Bikram Singh",
-      "email": "bikram@example.com",
-      "total_spent": 1499.50
-    },
-    "recent_orders": [...],
-    "tickets": [...]
-  }
-}
-```
+### 12.1 Workflows CRUD
+- **Endpoint**: `GET /api/v1/automation/workflows`
+- **Create Workflow**: `POST /api/v1/automation/workflows`
+- **Toggle Workflow**: `PATCH /api/v1/automation/workflows/{id}/toggle`
+
+### 12.2 Notification Templates
+- **Endpoint**: `GET /api/v1/automation/notifications/templates`
+- **Send Notification**: `POST /api/v1/automation/notifications/send`
 
 ---
 
-### 5.7 Order Lookup Workbench
-- **Endpoint**: `GET /api/v1/support/lookup-order?query=Bikram`
-- **Auth Required**: Yes (`Bearer {token}`)
+## 🌐 13. Module 10: Dynamic CMS & Media Hub APIs
 
-#### Response Payload (`200 OK`)
-```json
-{
-  "success": true,
-  "message": "Orders lookup completed.",
-  "data": [
-    {
-      "id": "8c57394b-0795-4948-9ee9-ef0fb0e34eb1",
-      "order_number": "ORD-99120",
-      "total_amount": "499.00",
-      "status": "PAID",
-      "customer": {
-        "id": "c1111111-1111-1111-1111-111111111111",
-        "name": "Bikram Singh",
-        "email": "bikram@example.com"
-      }
-    }
-  ]
-}
-```
+### 13.1 Dynamic Pages & SEO
+- **Endpoint**: `GET /api/v1/cms/pages`
+- **Create Page**: `POST /api/v1/cms/pages`
+- **Update Page**: `PUT /api/v1/cms/pages/{id}`
+- **Delete Page**: `DELETE /api/v1/cms/pages/{id}`
+
+### 13.2 Navigation Menus
+- **Endpoint**: `GET /api/v1/cms/menus`
+- **Save Menu Structure**: `POST /api/v1/cms/menus`
+
+### 13.3 Media Asset Management
+- **Endpoint**: `GET /api/v1/cms/media`
+- **Upload Media**: `POST /api/v1/cms/media/upload` (Multipart)
+- **Delete Media**: `DELETE /api/v1/cms/media/{id}`
 
 ---
 
-### 5.8 List Support FAQs
-- **Endpoint**: `GET /api/v1/support/faqs?category=Billing`
-- **Auth Required**: Yes (`Bearer {token}`)
+## 💳 14. Module 11: SaaS Plans & Billing APIs
+
+### 14.1 Pricing Plans
+- **Endpoint**: `GET /api/v1/saas/plans`
+
+### 14.2 Active Subscriptions & Invoices
+- **Endpoint**: `GET /api/v1/saas/subscription`
+- **Endpoint**: `GET /api/v1/saas/invoices`
+
+### 14.3 Usage Quotas
+- **Endpoint**: `GET /api/v1/saas/quotas`
+- **Response**: AI Token usage, storage usage, member limits, and remaining balance.
 
 ---
 
-### 5.9 Support SLA Telemetry & Analytics
-- **Endpoint**: `GET /api/v1/support/analytics`
-- **Auth Required**: Yes (`Bearer {token}`)
+## 🛡️ 15. Module 12: Super Admin & Production Infrastructure APIs
 
-#### Response Payload (`200 OK`)
-```json
-{
-  "success": true,
-  "message": "Support analytics retrieved.",
-  "data": {
-    "total_tickets": 4,
-    "open_tickets": 3,
-    "resolved_tickets": 1,
-    "sla_compliance_rate": 98.4,
-    "avg_first_response_time_minutes": 14.2,
-    "resolution_rate": 25.0,
-    "sentiment_breakdown": {
-      "Positive": 1,
-      "Neutral": 1,
-      "Frustrated": 1,
-      "Urgent": 1
-    }
-  }
-}
-```
+### 15.1 Super Admin Dashboard Overview
+- **Endpoint**: `GET /api/v1/admin/dashboard`
+- **Response**: 5-node health matrix, total tenants, total users, token velocity, database size.
 
----
+### 15.2 Production Infrastructure Telemetry
+- **Server Telemetry**: `GET /api/v1/admin/infrastructure/environment`
+- **Redis & Cache Stats**: `GET /api/v1/admin/infrastructure/cache`
+- **Flush Cache**: `POST /api/v1/admin/infrastructure/cache/flush`
+- **Queues & Failed Jobs**: `GET /api/v1/admin/infrastructure/queues`
+- **Retry Failed Jobs**: `POST /api/v1/admin/infrastructure/queues/retry-all`
+- **Purge Failed Jobs**: `POST /api/v1/admin/infrastructure/queues/purge-failed`
+- **Live Logs**: `GET /api/v1/admin/infrastructure/logs`
+- **Clear Logs**: `DELETE /api/v1/admin/infrastructure/logs`
+- **Database Tables & Sizing**: `GET /api/v1/admin/infrastructure/database`
+- **Optimize Database**: `POST /api/v1/admin/infrastructure/database/optimize`
+- **Run Snapshot Backup**: `POST /api/v1/admin/infrastructure/database/backup`
 
-## 🔐 6. Tenant Isolation & Governance APIs
+### 15.3 AI Provider Management
+- **List Providers**: `GET /api/v1/admin/ai-providers`
+- **Save Provider**: `POST /api/v1/admin/ai-providers`
+- **Test Connection**: `POST /api/v1/admin/ai-providers/test` `{ "provider": "gemini" }`
 
-### 6.1 Provision Company Tenant
-- **Endpoint**: `POST /api/v1/tenants`
-- **Auth Required**: Yes (`Bearer {token}`)
+### 15.4 Feature Flags
+- **List Flags**: `GET /api/v1/admin/feature-flags`
+- **Toggle Flag**: `PATCH /api/v1/admin/feature-flags/{id}/toggle`
+- **Tenant Override**: `POST /api/v1/admin/feature-flags/{id}/override`
 
-### 6.2 Switch Active Tenant
-- **Endpoint**: `POST /api/v1/tenant/switch`
-- **Auth Required**: Yes (`Bearer {token}`)
+### 15.5 System Prompt Templates
+- **List Templates**: `GET /api/v1/admin/prompts`
+- **Save Template**: `POST /api/v1/admin/prompts`

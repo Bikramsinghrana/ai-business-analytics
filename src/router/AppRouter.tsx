@@ -7,6 +7,10 @@ import { SuperAdminTenantsPage } from '../modules/super-admin/pages/SuperAdminTe
 import { SuperAdminUsersPage } from '../modules/super-admin/pages/SuperAdminUsersPage';
 import { SuperAdminRolesPage } from '../modules/super-admin/pages/SuperAdminRolesPage';
 import { SuperAdminSettingsPage } from '../modules/super-admin/pages/SuperAdminSettingsPage';
+import { SuperAdminInfrastructurePage } from '../modules/super-admin/pages/SuperAdminInfrastructurePage';
+import { SuperAdminAiProvidersPage } from '../modules/super-admin/pages/SuperAdminAiProvidersPage';
+import { SuperAdminFeatureFlagsPage } from '../modules/super-admin/pages/SuperAdminFeatureFlagsPage';
+import { SuperAdminPromptsPage } from '../modules/super-admin/pages/SuperAdminPromptsPage';
 import { AIChatPage } from '../modules/ai/pages/AIChatPage';
 import { KnowledgeBasePage } from '../modules/documents/pages/KnowledgeBasePage';
 import { CustomerListPage } from '../modules/customers/pages/CustomerListPage';
@@ -86,6 +90,38 @@ export const AppRouter: React.FC = () => {
                     element={
                       <SuperAdminRoute>
                         <SuperAdminSettingsPage />
+                      </SuperAdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/infrastructure"
+                    element={
+                      <SuperAdminRoute>
+                        <SuperAdminInfrastructurePage />
+                      </SuperAdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/ai-providers"
+                    element={
+                      <SuperAdminRoute>
+                        <SuperAdminAiProvidersPage />
+                      </SuperAdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/feature-flags"
+                    element={
+                      <SuperAdminRoute>
+                        <SuperAdminFeatureFlagsPage />
+                      </SuperAdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/prompts"
+                    element={
+                      <SuperAdminRoute>
+                        <SuperAdminPromptsPage />
                       </SuperAdminRoute>
                     }
                   />

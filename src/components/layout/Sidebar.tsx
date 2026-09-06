@@ -29,7 +29,11 @@ import {
   Workflow,
   Image as ImageIcon,
   Menu as MenuIcon,
-  Bell
+  Bell,
+  Server,
+  Sliders,
+  Flag,
+  MessageSquareCode
 } from 'lucide-react';
 import { UserRole, FeatureKey } from '../../types/enums';
 
@@ -69,8 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const canSeeAutomation = isSuperAdmin || isTenantOwner || isManager || isStaff;
   const canSeeCms = isSuperAdmin || isTenantOwner || isManager || isStaff;
   const canSeeBilling = isSuperAdmin || isTenantOwner || isManager;
-  const canSeeM8 = isSuperAdmin || isTenantOwner;
-  const canSeeM9 = isSuperAdmin;
+  const canSeeSuperAdmin = isSuperAdmin || isTenantOwner;
 
   // Collapsible dropdown states
   const [openM1, setOpenM1] = useState<boolean>(location.pathname === '/dashboard');
@@ -88,8 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [openAutomation, setOpenAutomation] = useState<boolean>(location.pathname.startsWith('/automation'));
   const [openCms, setOpenCms] = useState<boolean>(location.pathname.startsWith('/cms'));
   const [openBilling, setOpenBilling] = useState<boolean>(location.pathname.startsWith('/billing') || location.pathname.startsWith('/subscription') || location.pathname.startsWith('/saas'));
-  const [openM8, setOpenM8] = useState<boolean>(location.pathname.startsWith('/admin/tenants') || location.pathname.startsWith('/admin/users') || location.pathname.startsWith('/admin/roles'));
-  const [openM9, setOpenM9] = useState<boolean>(location.pathname === '/admin' || location.pathname.startsWith('/admin/settings'));
+  const [openSuperAdmin, setOpenSuperAdmin] = useState<boolean>(location.pathname.startsWith('/admin'));
 
   return (
     <aside className="w-64 bg-slate-900/95 backdrop-blur-md border-r border-slate-800 flex flex-col h-screen sticky top-0 z-30 select-none">
@@ -715,52 +717,129 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* MODULE 12: Tenants & User Access */}
-        {canSeeM8 && (
+        {/* MODULE 12: Super Admin & Production Infrastructure */}
+        {canSeeSuperAdmin && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenM8(!openM8)}
+              onClick={() => setOpenSuperAdmin(!openSuperAdmin)}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
-                <Lock className="w-3.5 h-3.5 text-slate-300" />
-                12. Tenant & Access
+                <ShieldCheck className="w-3.5 h-3.5 text-rose-400" />
+                12. Super Admin & Infra
               </span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM8 ? 'rotate-180 text-slate-300' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openSuperAdmin ? 'rotate-180 text-rose-400' : ''}`} />
             </button>
 
-            {openM8 && (
-              <div className="pl-2 space-y-1 border-l-2 border-slate-700 ml-3">
+            {openSuperAdmin && (
+              <div className="pl-2 space-y-1 border-l-2 border-rose-500/30 ml-3">
                 {isSuperAdmin && (
-                  <NavLink
-                    to="/admin/tenants"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`
-                    }
-                  >
-                    <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Companies / Tenants</span>
-                  </NavLink>
+                  <>
+                    <NavLink
+                      to="/admin"
+                      end
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <LayoutDashboard className="w-3.5 h-3.5 text-rose-400" />
+                      <span>Admin Overview</span>
+                    </NavLink>
+
+                    <NavLink
+                      to="/admin/infrastructure"
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <Server className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Production Infrastructure</span>
+                    </NavLink>
+
+                    <NavLink
+                      to="/admin/ai-providers"
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <Cpu className="w-3.5 h-3.5 text-purple-400" />
+                      <span>AI Providers & Models</span>
+                    </NavLink>
+
+                    <NavLink
+                      to="/admin/feature-flags"
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <Flag className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Feature Flags</span>
+                    </NavLink>
+
+                    <NavLink
+                      to="/admin/prompts"
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <MessageSquareCode className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>System Prompts</span>
+                    </NavLink>
+
+                    <NavLink
+                      to="/admin/settings"
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <Settings className="w-3.5 h-3.5 text-indigo-400" />
+                      <span>Platform Settings</span>
+                    </NavLink>
+
+                    <NavLink
+                      to="/admin/tenants"
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          isActive ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`
+                      }
+                    >
+                      <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Companies / Tenants</span>
+                    </NavLink>
+                  </>
                 )}
+
                 <NavLink
                   to="/admin/users"
                   className={({ isActive }) =>
                     `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                      isActive ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                     }`
                   }
                 >
                   <Users className="w-3.5 h-3.5 text-slate-400" />
                   <span>Users Directory</span>
                 </NavLink>
+
                 {isSuperAdmin && (
                   <NavLink
                     to="/admin/roles"
                     className={({ isActive }) =>
                       `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        isActive ? 'bg-rose-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                       }`
                     }
                   >
@@ -768,51 +847,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <span>Roles & Permissions</span>
                   </NavLink>
                 )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* MODULE 13: System Settings */}
-        {canSeeM9 && (
-          <div className="space-y-1">
-            <button
-              onClick={() => setOpenM9(!openM9)}
-              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <Settings className="w-3.5 h-3.5 text-red-400" />
-                13. System Settings
-              </span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM9 ? 'rotate-180 text-red-400' : ''}`} />
-            </button>
-
-            {openM9 && (
-              <div className="pl-2 space-y-1 border-l-2 border-red-500/30 ml-3">
-                <NavLink
-                  to="/admin"
-                  end
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                    }`
-                  }
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-red-400" />
-                  <span>Super Admin Control</span>
-                </NavLink>
-
-                <NavLink
-                  to="/admin/settings"
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                    }`
-                  }
-                >
-                  <Settings className="w-3.5 h-3.5 text-red-400" />
-                  <span>AWS & AI Provider Keys</span>
-                </NavLink>
               </div>
             )}
           </div>
