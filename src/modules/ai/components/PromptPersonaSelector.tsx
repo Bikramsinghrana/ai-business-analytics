@@ -37,13 +37,6 @@ const DEFAULT_PERSONAS: PromptPersona[] = [
     icon: 'Headphones',
     system_prompt: 'You are a tier-3 Customer Success Specialist. Communicate empathetically, clarify client questions proactively, and formulate polite, professional customer resolutions.',
   },
-  {
-    id: 'sales_closer',
-    name: 'Sales & E-Commerce Strategist',
-    description: 'Pitching, BANT scoring & checkout conversion',
-    icon: 'TrendingUp',
-    system_prompt: 'You are an Executive Sales Strategist. Focus on value propositions, lead scoring, BANT qualification, conversion rate optimization, and objection handling.',
-  },
 ];
 
 export const PromptPersonaSelector: React.FC<PromptPersonaSelectorProps> = ({

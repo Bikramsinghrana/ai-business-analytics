@@ -5,15 +5,12 @@ import {
   User, 
   Copy, 
   Check, 
-  Wrench, 
   Radio, 
   Clock, 
-  ShieldCheck, 
   Volume2, 
   VolumeX, 
   Code2, 
-  FileText, 
-  Cpu 
+  FileText 
 } from 'lucide-react';
 
 interface ChatMessageItemProps {
@@ -196,48 +193,17 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message }) => 
       )}
 
       <div className={`max-w-3xl flex flex-col space-y-1.5 ${isAi ? 'items-start' : 'items-end'}`}>
-        {/* Badges Header */}
-        {isAi && (meta.agent_name || meta.search_type || meta.model || meta.is_real_time) && (
-          <div className="flex flex-wrap items-center gap-1.5 mb-1">
-            {meta.agent_name && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-[10px] font-semibold text-indigo-300">
-                <ShieldCheck className="w-3 h-3 text-indigo-400" />
-                <span>{meta.agent_name}</span>
-              </span>
-            )}
-            {meta.model && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-[10px] font-mono text-purple-300">
-                <Cpu className="w-3 h-3 text-purple-400" />
-                <span>{meta.model}</span>
-              </span>
-            )}
-            {meta.search_type && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 uppercase">
-                {meta.search_type}
-              </span>
-            )}
+        {/* Clean Sender Header */}
+        {isAi && (
+          <div className="flex items-center gap-2 mb-1 px-1 text-[11px] text-slate-400">
+            <span className="font-semibold text-slate-200">{meta.agent_name || 'AURA Assistant'}</span>
+            {meta.model && <span className="text-[10px] text-slate-500 font-mono">• {meta.model}</span>}
             {meta.is_real_time && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-medium text-emerald-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live Data
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                Live
               </span>
             )}
-          </div>
-        )}
-
-        {/* Tool Executions Pills */}
-        {isAi && message.tool_calls && message.tool_calls.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-1">
-            {message.tool_calls.map((t, idx) => (
-              <span
-                key={idx}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-medium text-emerald-400"
-                title={t.description}
-              >
-                <Wrench className="w-3 h-3" />
-                <span>{t.tool}</span>
-              </span>
-            ))}
           </div>
         )}
 

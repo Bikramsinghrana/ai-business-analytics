@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Sparkles, Bot, Loader2, Settings, Eraser, Edit3, Check, X, Radio } from 'lucide-react';
+import { Sparkles, Bot, Loader2, Settings, Eraser, Edit3, Check, X, Radio, Layers } from 'lucide-react';
 import { AIProvider } from '../../../types/enums';
-import { SearchType, PromptPersona, AiSettings } from '../types/ai.types';
+import { SearchType, AiSettings } from '../types/ai.types';
 import { useToast } from '../../../context/ToastContext';
 import { aiApi } from '../api/aiApi';
 import { AiConversation, AiMessage } from '../types/ai.types';
@@ -11,8 +11,8 @@ import { ChatInputArea } from '../components/ChatInputArea';
 import { AiMetricsWidget } from '../components/AiMetricsWidget';
 import { AiModelSelector } from '../components/AiModelSelector';
 import { SearchTypeSelector } from '../components/SearchTypeSelector';
-import { PromptPersonaSelector } from '../components/PromptPersonaSelector';
 import { AiSettingsModal } from '../components/AiSettingsModal';
+import { AgentToolInspectorModal } from '../components/AgentToolInspectorModal';
 
 export const AIChatPage: React.FC = () => {
   const [conversations, setConversations] = useState<AiConversation[]>([]);
@@ -22,9 +22,8 @@ export const AIChatPage: React.FC = () => {
   const [fetchingList, setFetchingList] = useState(true);
   const [provider, setProvider] = useState<AIProvider>(AIProvider.GEMINI);
   const [searchType, setSearchType] = useState<SearchType>(SearchType.WEB);
-  const [selectedPersonaId, setSelectedPersonaId] = useState<string>('general');
-  const [selectedPersona, setSelectedPersona] = useState<PromptPersona | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const [isStreaming, setIsStreaming] = useState(true);
@@ -103,7 +102,7 @@ export const AIChatPage: React.FC = () => {
       setLoading(true);
       const res = await aiApi.createConversation({
         provider,
-        title: 'New AI Conversation',
+        title: 'AI Chat',
       });
       const newConv = res.data?.conversation;
       if (newConv) {
@@ -193,7 +192,6 @@ export const AIChatPage: React.FC = () => {
       message: userPrompt,
       search_type: selectedSearchType,
       provider: selectedProvider,
-      system_prompt: selectedPersona?.system_prompt,
     };
 
     // If streaming enabled and we have an active conversation, stream via SSE
@@ -285,80 +283,68 @@ export const AIChatPage: React.FC = () => {
       {/* Main Chat Hub */}
       <div className="flex-1 flex flex-col min-w-0 bg-slate-950/60">
         
-        {/* Header Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-slate-800 bg-slate-900/70 backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-sm">
-              <Sparkles className="w-5 h-5" />
+        {/* Unified Clean Header */}
+        <div className="px-4 py-3 border-b border-slate-800 bg-slate-900/90 backdrop-blur-md flex items-center justify-between gap-3 flex-wrap">
+          {/* Left: Chat Session Title */}
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-sm flex-shrink-0">
+              <Sparkles className="w-4 h-4" />
             </div>
 
-            <div>
-              {isRenaming && activeConversation ? (
-                <div className="flex items-center gap-1">
-                  <input
-                    type="text"
-                    value={renameValue}
-                    onChange={(e) => setRenameValue(e.target.value)}
-                    className="bg-slate-950 border border-indigo-500 rounded-lg px-2 py-0.5 text-xs text-white focus:outline-none"
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleRenameConversation(activeConversation.id, renameValue);
-                        setIsRenaming(false);
-                      }
-                      if (e.key === 'Escape') setIsRenaming(false);
-                    }}
-                  />
-                  <button
-                    onClick={() => {
+            {isRenaming && activeConversation ? (
+              <div className="flex items-center gap-1">
+                <input
+                  type="text"
+                  value={renameValue}
+                  onChange={(e) => setRenameValue(e.target.value)}
+                  className="bg-slate-950 border border-indigo-500 rounded-lg px-2 py-0.5 text-xs text-white focus:outline-none"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
                       handleRenameConversation(activeConversation.id, renameValue);
                       setIsRenaming(false);
+                    }
+                    if (e.key === 'Escape') setIsRenaming(false);
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    handleRenameConversation(activeConversation.id, renameValue);
+                    setIsRenaming(false);
+                  }}
+                  className="p-1 text-emerald-400 hover:text-emerald-300"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => setIsRenaming(false)} className="p-1 text-red-400 hover:text-red-300">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 min-w-0">
+                <h2 className="font-bold text-white text-sm truncate max-w-[160px] sm:max-w-xs">
+                  {activeConversation?.title && activeConversation.title !== 'New AI Conversation'
+                    ? activeConversation.title
+                    : 'AURA AI Assistant'}
+                </h2>
+                {activeConversation && (
+                  <button
+                    onClick={() => {
+                      setRenameValue(activeConversation.title);
+                      setIsRenaming(true);
                     }}
-                    className="p-1 text-emerald-400 hover:text-emerald-300"
+                    className="p-1 text-slate-500 hover:text-slate-300 rounded transition"
+                    title="Rename conversation"
                   >
-                    <Check className="w-3.5 h-3.5" />
+                    <Edit3 className="w-3 h-3" />
                   </button>
-                  <button onClick={() => setIsRenaming(false)} className="p-1 text-red-400 hover:text-red-300">
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <h2 className="font-bold text-white text-sm truncate max-w-[280px]">
-                    {activeConversation?.title || 'AURA AI Business Assistant'}
-                  </h2>
-                  {activeConversation && (
-                    <button
-                      onClick={() => {
-                        setRenameValue(activeConversation.title);
-                        setIsRenaming(true);
-                      }}
-                      className="p-1 text-slate-500 hover:text-slate-300 rounded"
-                      title="Rename conversation"
-                    >
-                      <Edit3 className="w-3 h-3" />
-                    </button>
-                  )}
-                </div>
-              )}
-              <p className="text-[11px] text-slate-400">
-                Multi-Agent Search Classification & Real-Time Engine
-              </p>
-            </div>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Action Tools */}
-          <div className="flex items-center gap-2">
-            {/* Prompt Persona Selector */}
-            <PromptPersonaSelector
-              selectedPersonaId={selectedPersonaId}
-              onSelectPersona={(persona) => {
-                setSelectedPersonaId(persona.id);
-                setSelectedPersona(persona);
-                toast.success('Persona Switched', `Active Persona: ${persona.name}`);
-              }}
-            />
-
+          {/* Right: Controls & Actions */}
+          <div className="flex items-center gap-2 flex-wrap">
             {/* Search Domain Selector */}
             <SearchTypeSelector
               value={searchType}
@@ -373,34 +359,39 @@ export const AIChatPage: React.FC = () => {
               disabled={loading}
             />
 
-            <div className="hidden lg:block h-5 w-px bg-slate-800" />
+            {/* Agent & Tool Inspector */}
+            <button
+              type="button"
+              onClick={() => setIsInspectorOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600/15 border border-indigo-500/30 hover:bg-indigo-600/25 text-xs font-semibold text-indigo-300 hover:text-white transition shadow-sm"
+              title="Inspect Specialized Agents, Registered Tools & Live Runner"
+            >
+              <Layers className="w-3.5 h-3.5 text-indigo-400" />
+              <span className="hidden sm:inline">Agents & Tools</span>
+            </button>
 
-            <div className="hidden lg:block">
-              <AiMetricsWidget />
-            </div>
+            {/* AI Settings Modal Button */}
+            <button
+              type="button"
+              onClick={() => setIsSettingsOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-white transition shadow-sm"
+              title="Configure AI Settings, Models & API Keys"
+            >
+              <Settings className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Settings</span>
+            </button>
 
             {/* Clear History Button */}
             {activeConversation && (
               <button
                 type="button"
                 onClick={handleClearMessages}
-                className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800/60 rounded-xl transition-colors"
+                className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-xl transition"
                 title="Clear message history"
               >
-                <Eraser className="w-4 h-4" />
+                <Eraser className="w-3.5 h-3.5" />
               </button>
             )}
-
-            {/* AI Settings Modal Button */}
-            <button
-              type="button"
-              onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-300 hover:text-white transition shadow-sm"
-              title="Configure AI Settings, Models & API Keys"
-            >
-              <Settings className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="hidden sm:inline">Settings</span>
-            </button>
           </div>
         </div>
 
@@ -414,7 +405,7 @@ export const AIChatPage: React.FC = () => {
               <div className="space-y-1.5">
                 <h3 className="text-base font-bold text-white">How can AURA assist you today?</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Persona: <span className="text-indigo-300 font-semibold">{selectedPersona?.name || 'AURA Executive Copilot'}</span>. Select any category or ask any question.
+                  Select an AI Agent above or ask any question across web, sports, finance, weather, or codebase.
                 </p>
               </div>
             </div>
@@ -482,6 +473,12 @@ export const AIChatPage: React.FC = () => {
             setProvider(newSettings.default_provider as AIProvider);
           }
         }}
+      />
+
+      {/* Agent & Tool Inspector Console Modal */}
+      <AgentToolInspectorModal
+        isOpen={isInspectorOpen}
+        onClose={() => setIsInspectorOpen(false)}
       />
     </div>
   );

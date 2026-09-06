@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { SearchType } from '../types/ai.types';
 import { SEARCH_TYPE_OPTIONS, SearchTypeOption } from '../constants/aiConstants';
@@ -135,12 +135,12 @@ export const SearchTypeSelector: React.FC<SearchTypeSelectorProps> = ({
         type="button"
         disabled={disabled}
         onClick={toggleDropdown}
-        className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-500/50 rounded-xl text-xs text-slate-200 transition focus:outline-none focus:ring-2 focus:ring-indigo-500/30 shadow-md group disabled:opacity-50"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-500/50 rounded-xl text-xs text-slate-200 transition focus:outline-none focus:ring-2 focus:ring-indigo-500/30 shadow-md group disabled:opacity-50 whitespace-nowrap flex-shrink-0"
       >
-        <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition ${selectedAccent}`}>
+        <div className={`w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0 transition ${selectedAccent}`}>
           <SelectedIcon className="w-3.5 h-3.5" />
         </div>
-        <span className="text-xs font-bold text-white hidden sm:block">{selectedOption.label}</span>
+        <span className="text-xs font-semibold text-white whitespace-nowrap">{selectedOption.label}</span>
         <ChevronDown
           className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
             isOpen ? 'rotate-180 text-indigo-400' : ''
@@ -159,17 +159,19 @@ export const SearchTypeSelector: React.FC<SearchTypeSelectorProps> = ({
               left: `${coords.left}px`,
               zIndex: 99999,
             }}
-            className="w-72 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-h-[70vh] flex flex-col"
+            className="w-80 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col"
           >
-            <div className="px-3 py-2 flex items-center justify-between bg-slate-850 border-b border-slate-800 flex-shrink-0">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3 text-indigo-400" />
-                Search Domain
+            <div className="px-3.5 py-2.5 flex items-center justify-between bg-slate-950 border-b border-slate-800 flex-shrink-0">
+              <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                Select AI Agent & Domain
               </span>
-              <span className="text-[9px] text-indigo-400 font-semibold">click to activate</span>
+              <span className="text-[10px] text-indigo-400 font-semibold px-1.5 py-0.5 rounded bg-indigo-500/10">
+                {SEARCH_TYPE_OPTIONS.length} Available
+              </span>
             </div>
 
-            <div className="p-1.5 overflow-y-auto space-y-0.5 custom-scrollbar flex-1">
+            <div className="p-1.5 overflow-y-auto space-y-0.5 custom-scrollbar max-h-[340px]">
               {SEARCH_TYPE_OPTIONS.map((opt) => {
                 const Icon = ICONS[opt.iconName] || Sparkles;
                 const isSelected = opt.value === value;

@@ -1,14 +1,7 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Send,
   Loader2,
-  Globe,
-  MessageSquare,
-  ShoppingBag,
-  Newspaper,
-  FolderGit2,
-  Trophy,
-  TrendingUp,
   Mic,
   MicOff,
   Volume2,
@@ -23,25 +16,14 @@ interface ChatInputAreaProps {
   loading: boolean;
   provider: AIProvider;
   searchType: SearchType;
-  onSearchTypeChange: (type: SearchType) => void;
+  onSearchTypeChange?: (type: SearchType) => void;
 }
-
-const QUICK_DOMAINS = [
-  { type: SearchType.WEB, label: 'Live Web Search', icon: Globe },
-  { type: SearchType.GENERAL, label: 'General AI', icon: MessageSquare },
-  { type: SearchType.ECOMMERCE, label: 'E-commerce', icon: ShoppingBag },
-  { type: SearchType.NEWS, label: 'News', icon: Newspaper },
-  { type: SearchType.PROJECT, label: 'Project', icon: FolderGit2 },
-  { type: SearchType.SPORTS, label: 'Sports', icon: Trophy },
-  { type: SearchType.FINANCE, label: 'Stocks', icon: TrendingUp },
-];
 
 export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   onSend,
   loading,
   provider,
   searchType,
-  onSearchTypeChange,
 }) => {
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -125,34 +107,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     : SEARCH_TYPE_PLACEHOLDERS[searchType] || 'Ask any question...';
 
   return (
-    <div className="p-4 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 space-y-2.5">
-      {/* 1-Click Search Mode Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 custom-scrollbar">
-        <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mr-1">
-          Active Mode:
-        </span>
-        {QUICK_DOMAINS.map((domain) => {
-          const Icon = domain.icon;
-          const isActive = searchType === domain.type;
-          return (
-            <button
-              key={domain.type}
-              type="button"
-              disabled={loading}
-              onClick={() => onSearchTypeChange(domain.type)}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition active:scale-95 whitespace-nowrap ${
-                isActive
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30 ring-1 ring-indigo-400 font-bold'
-                  : 'bg-slate-950/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
-              }`}
-            >
-              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-              <span>{domain.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
+    <div className="p-4 bg-slate-900/90 backdrop-blur-md border-t border-slate-800/80">
       {/* Main Search Input Form with Voice Button */}
       <form onSubmit={handleSubmit} className="flex items-center gap-2">
         <div className="relative flex-1">
