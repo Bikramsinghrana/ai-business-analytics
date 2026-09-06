@@ -15,6 +15,7 @@ import { OrderListPage } from '../modules/orders/pages/OrderListPage';
 import { CustomerSupportPage } from '../modules/support/pages/CustomerSupportPage';
 import { SalesEcommercePage } from '../modules/sales/pages/SalesEcommercePage';
 import { SQLAnalystPage } from '../modules/bi/pages/SQLAnalystPage';
+import { MultiAgentStudioPage } from '../modules/multi-agent/pages/MultiAgentStudioPage';
 import { LoginPage } from '../modules/auth/pages/LoginPage';
 import { RegisterPage } from '../modules/auth/pages/RegisterPage';
 import { ProfilePage } from '../modules/users/pages/ProfilePage';
@@ -112,6 +113,8 @@ export const AppRouter: React.FC = () => {
                   <Route path="/bi" element={<SQLAnalystPage />} />
                   <Route path="/documents" element={<KnowledgeBasePage />} />
                   <Route path="/knowledge" element={<KnowledgeBasePage />} />
+                  <Route path="/multi-agent" element={<MultiAgentStudioPage />} />
+                  <Route path="/developer-agent" element={<MultiAgentStudioPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>

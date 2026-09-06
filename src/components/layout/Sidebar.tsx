@@ -19,7 +19,10 @@ import {
   Cpu, 
   Store, 
   BarChart3,
-  Briefcase
+  Briefcase,
+  Code2,
+  Layers,
+  TestTube
 } from 'lucide-react';
 import { UserRole, FeatureKey } from '../../types/enums';
 
@@ -38,25 +41,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
     [FeatureKey.SALES_AGENT]: true,
   }
 }) => {
-  const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
-  const isCustomerOrClient = userRole === UserRole.CUSTOMER || userRole === UserRole.CLIENT;
-  const isDeveloper = userRole === UserRole.DEVELOPER;
-  const isStaff = userRole === UserRole.STAFF;
-  const isManager = userRole === UserRole.MANAGER;
-  const isTenantOwner = userRole === UserRole.TENANT_OWNER;
-
-  // Role-based visibility for the 9 sorted modules
-  const canSeeM1 = true; // Executive Dashboard (all roles)
-  const canSeeM2 = isSuperAdmin || isTenantOwner || isManager || isStaff || isDeveloper; // AI Copilot
-  const canSeeM3 = isSuperAdmin || isTenantOwner || isManager; // Sales CRM & Deals
-  const canSeeM4 = isSuperAdmin || isTenantOwner || isManager || isStaff || isCustomerOrClient; // Commerce & Orders
-  const canSeeM5 = isSuperAdmin || isTenantOwner || isManager || isStaff || isCustomerOrClient; // Customer Support
-  const canSeeM6 = isSuperAdmin || isTenantOwner || isManager || isDeveloper; // Document Intelligence / RAG
-  const canSeeM7 = isSuperAdmin || isTenantOwner || isDeveloper; // BI & SQL Analytics
-  const canSeeM8 = isSuperAdmin || isTenantOwner; // Tenant & User Access
-  const canSeeM9 = isSuperAdmin; // System Settings
-
   const location = useLocation();
+
+  // Role checks
+  const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
+  const isTenantOwner = userRole === UserRole.TENANT_OWNER;
+  const isManager = userRole === UserRole.MANAGER;
+  const isStaff = userRole === UserRole.STAFF;
+  const isDeveloper = userRole === UserRole.DEVELOPER || (userRole as any) === 'DEVELOPER';
+  const isCustomerOrClient = userRole === UserRole.CUSTOMER || (userRole as any) === 'CLIENT';
+
+  const canSeeM1 = true;
+  const canSeeM2 = true;
+  const canSeeM3 = isSuperAdmin || isTenantOwner || isManager || isStaff;
+  const canSeeM4 = isSuperAdmin || isTenantOwner || isManager || isStaff || isCustomerOrClient;
+  const canSeeM5 = isSuperAdmin || isTenantOwner || isManager || isStaff || isCustomerOrClient;
+  const canSeeM6 = isSuperAdmin || isTenantOwner || isManager || isStaff;
+  const canSeeM7 = isSuperAdmin || isTenantOwner || isManager;
+  const canSeeMultiAgent = isSuperAdmin || isTenantOwner || isManager || isStaff;
+  const canSeeM8 = isSuperAdmin || isTenantOwner;
+  const canSeeM9 = isSuperAdmin;
 
   // Collapsible dropdown states
   const [openM1, setOpenM1] = useState<boolean>(location.pathname === '/dashboard');
@@ -70,6 +74,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [openM5, setOpenM5] = useState<boolean>(location.pathname.startsWith('/support'));
   const [openM6, setOpenM6] = useState<boolean>(location.pathname.startsWith('/documents'));
   const [openM7, setOpenM7] = useState<boolean>(location.pathname.startsWith('/sql-analyst') || location.pathname.startsWith('/analytics') || location.pathname.startsWith('/bi'));
+  const [openMultiAgent, setOpenMultiAgent] = useState<boolean>(location.pathname.startsWith('/multi-agent') || location.pathname.startsWith('/developer-agent'));
   const [openM8, setOpenM8] = useState<boolean>(location.pathname.startsWith('/admin/tenants') || location.pathname.startsWith('/admin/users') || location.pathname.startsWith('/admin/roles'));
   const [openM9, setOpenM9] = useState<boolean>(location.pathname === '/admin' || location.pathname.startsWith('/admin/settings'));
 
@@ -507,7 +512,51 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* MODULE 08: Tenants & User Access */}
+        {/* MODULE 08: Multi-Agent & Developer Studio */}
+        {canSeeMultiAgent && (
+          <div className="space-y-1">
+            <button
+              onClick={() => setOpenMultiAgent(!openMultiAgent)}
+              className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Cpu className="w-3.5 h-3.5 text-purple-400" />
+                08. Multi-Agent & Dev
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openMultiAgent ? 'rotate-180 text-purple-400' : ''}`} />
+            </button>
+
+            {openMultiAgent && (
+              <div className="pl-2 space-y-1 border-l-2 border-purple-500/30 ml-3">
+                <NavLink
+                  to="/multi-agent"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <Layers className="w-3.5 h-3.5 text-purple-400" />
+                  <span>Supervisor & DAG</span>
+                </NavLink>
+
+                <NavLink
+                  to="/developer-agent"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`
+                  }
+                >
+                  <Code2 className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Developer Studio</span>
+                </NavLink>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MODULE 09: Tenants & User Access */}
         {canSeeM8 && (
           <div className="space-y-1">
             <button
@@ -516,7 +565,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <span className="flex items-center gap-2">
                 <Lock className="w-3.5 h-3.5 text-slate-300" />
-                08. Tenant & Access
+                09. Tenant & Access
               </span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openM8 ? 'rotate-180 text-slate-300' : ''}`} />
             </button>
