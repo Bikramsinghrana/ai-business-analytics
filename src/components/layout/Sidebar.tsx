@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -75,23 +75,81 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const canSeeBilling = isSuperAdmin || isTenantOwner || isManager;
   const canSeeSuperAdmin = isSuperAdmin || isTenantOwner;
 
-  // Collapsible dropdown states
-  const [openM1, setOpenM1] = useState<boolean>(location.pathname === '/dashboard');
-  const [openM2, setOpenM2] = useState<boolean>(location.pathname.startsWith('/ai-chat'));
-  const [openM3, setOpenM3] = useState<boolean>(location.pathname.startsWith('/sales'));
-  const [openM4, setOpenM4] = useState<boolean>(
-    location.pathname.startsWith('/products') ||
-    location.pathname.startsWith('/orders') ||
-    location.pathname.startsWith('/customers')
-  );
-  const [openM5, setOpenM5] = useState<boolean>(location.pathname.startsWith('/support'));
-  const [openM6, setOpenM6] = useState<boolean>(location.pathname.startsWith('/documents'));
-  const [openM7, setOpenM7] = useState<boolean>(location.pathname.startsWith('/sql-analyst') || location.pathname.startsWith('/analytics') || location.pathname.startsWith('/bi'));
-  const [openMultiAgent, setOpenMultiAgent] = useState<boolean>(location.pathname.startsWith('/multi-agent') || location.pathname.startsWith('/developer-agent'));
-  const [openAutomation, setOpenAutomation] = useState<boolean>(location.pathname.startsWith('/automation'));
-  const [openCms, setOpenCms] = useState<boolean>(location.pathname.startsWith('/cms'));
-  const [openBilling, setOpenBilling] = useState<boolean>(location.pathname.startsWith('/billing') || location.pathname.startsWith('/subscription') || location.pathname.startsWith('/saas'));
-  const [openSuperAdmin, setOpenSuperAdmin] = useState<boolean>(location.pathname.startsWith('/admin'));
+  // Accordion state: only one module dropdown open at a time
+  type ModuleKey =
+    | 'm1'
+    | 'm2'
+    | 'm3'
+    | 'm4'
+    | 'm5'
+    | 'm6'
+    | 'm7'
+    | 'multiAgent'
+    | 'automation'
+    | 'cms'
+    | 'billing'
+    | 'superAdmin';
+
+  const getInitialActiveModule = (): ModuleKey | null => {
+    if (location.pathname === '/dashboard') return 'm1';
+    if (location.pathname.startsWith('/ai-chat')) return 'm2';
+    if (location.pathname.startsWith('/sales')) return 'm3';
+    if (
+      location.pathname.startsWith('/products') ||
+      location.pathname.startsWith('/orders') ||
+      location.pathname.startsWith('/customers')
+    )
+      return 'm4';
+    if (location.pathname.startsWith('/support')) return 'm5';
+    if (location.pathname.startsWith('/documents')) return 'm6';
+    if (
+      location.pathname.startsWith('/sql-analyst') ||
+      location.pathname.startsWith('/analytics') ||
+      location.pathname.startsWith('/bi')
+    )
+      return 'm7';
+    if (
+      location.pathname.startsWith('/multi-agent') ||
+      location.pathname.startsWith('/developer-agent')
+    )
+      return 'multiAgent';
+    if (location.pathname.startsWith('/automation')) return 'automation';
+    if (location.pathname.startsWith('/cms')) return 'cms';
+    if (
+      location.pathname.startsWith('/billing') ||
+      location.pathname.startsWith('/subscription') ||
+      location.pathname.startsWith('/saas')
+    )
+      return 'billing';
+    if (location.pathname.startsWith('/admin')) return 'superAdmin';
+    return null;
+  };
+
+  const [activeModule, setActiveModule] = useState<ModuleKey | null>(getInitialActiveModule);
+
+  useEffect(() => {
+    const matched = getInitialActiveModule();
+    if (matched) {
+      setActiveModule(matched);
+    }
+  }, [location.pathname]);
+
+  const toggleModule = (module: ModuleKey) => {
+    setActiveModule((prev) => (prev === module ? null : module));
+  };
+
+  const openM1 = activeModule === 'm1';
+  const openM2 = activeModule === 'm2';
+  const openM3 = activeModule === 'm3';
+  const openM4 = activeModule === 'm4';
+  const openM5 = activeModule === 'm5';
+  const openM6 = activeModule === 'm6';
+  const openM7 = activeModule === 'm7';
+  const openMultiAgent = activeModule === 'multiAgent';
+  const openAutomation = activeModule === 'automation';
+  const openCms = activeModule === 'cms';
+  const openBilling = activeModule === 'billing';
+  const openSuperAdmin = activeModule === 'superAdmin';
 
   return (
     <aside className="w-64 bg-slate-900/95 backdrop-blur-md border-r border-slate-800 flex flex-col h-screen sticky top-0 z-30 select-none">
@@ -113,7 +171,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {canSeeM1 && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenM1(!openM1)}
+              onClick={() => toggleModule('m1')}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
@@ -145,7 +203,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {canSeeM2 && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenM2(!openM2)}
+              onClick={() => toggleModule('m2')}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
@@ -200,7 +258,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {canSeeM3 && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenM3(!openM3)}
+              onClick={() => toggleModule('m3')}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
@@ -266,7 +324,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {canSeeM4 && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenM4(!openM4)}
+              onClick={() => toggleModule('m4')}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
@@ -324,7 +382,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {canSeeM5 && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenM5(!openM5)}
+              onClick={() => toggleModule('m5')}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
@@ -393,7 +451,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {canSeeM6 && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenM6(!openM6)}
+              onClick={() => toggleModule('m6')}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
@@ -427,7 +485,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {canSeeM7 && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenM7(!openM7)}
+              onClick={() => toggleModule('m7')}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
@@ -531,7 +589,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {canSeeMultiAgent && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenMultiAgent(!openMultiAgent)}
+              onClick={() => toggleModule('multiAgent')}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
@@ -575,7 +633,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {canSeeAutomation && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenAutomation(!openAutomation)}
+              onClick={() => toggleModule('automation')}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
@@ -619,7 +677,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {canSeeCms && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenCms(!openCms)}
+              onClick={() => toggleModule('cms')}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
@@ -675,7 +733,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {canSeeBilling && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenBilling(!openBilling)}
+              onClick={() => toggleModule('billing')}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">
@@ -721,7 +779,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {canSeeSuperAdmin && (
           <div className="space-y-1">
             <button
-              onClick={() => setOpenSuperAdmin(!openSuperAdmin)}
+              onClick={() => toggleModule('superAdmin')}
               className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-white transition-colors"
             >
               <span className="flex items-center gap-2">

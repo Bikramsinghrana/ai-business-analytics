@@ -30,9 +30,14 @@ export const AIChatPage: React.FC = () => {
   const [streamingContent, setStreamingContent] = useState<string>('');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isInitializingRef = useRef(false);
+  const isCreatingChatRef = useRef(false);
   const toast = useToast();
 
   useEffect(() => {
+    if (isInitializingRef.current) return;
+    isInitializingRef.current = true;
+
     loadConversations();
     loadSettings();
   }, []);
@@ -98,7 +103,15 @@ export const AIChatPage: React.FC = () => {
   };
 
   const handleNewChat = async () => {
+    if (isCreatingChatRef.current) return;
+
+    // If current active session already has 0 messages, keep using it instead of stacking empty sessions
+    if (activeConversation && messages.length === 0) {
+      return;
+    }
+
     try {
+      isCreatingChatRef.current = true;
       setLoading(true);
       const res = await aiApi.createConversation({
         provider,
@@ -106,7 +119,7 @@ export const AIChatPage: React.FC = () => {
       });
       const newConv = res.data?.conversation;
       if (newConv) {
-        setConversations((prev) => [newConv, ...prev]);
+        setConversations((prev) => [newConv, ...prev.filter((c) => c.id !== newConv.id)]);
         setActiveConversation(newConv);
         setMessages([]);
       }
@@ -114,6 +127,7 @@ export const AIChatPage: React.FC = () => {
       toast.error('Failed to create new session', err.message);
     } finally {
       setLoading(false);
+      isCreatingChatRef.current = false;
     }
   };
 
