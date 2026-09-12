@@ -73,11 +73,29 @@ export const SchemaExplorer: React.FC<SchemaExplorerProps> = ({
 
       {/* Tables List */}
       <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-        {filteredSchema.map((tbl) => {
-          const isExpanded = expandedTables[tbl.table];
+        {isLoading && schema.length === 0 ? (
+          <div className="space-y-2 py-1 animate-pulse">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="h-10 bg-slate-800/30 rounded-xl border border-slate-800/60 flex items-center px-3 gap-2"
+              >
+                <div className="w-3.5 h-3.5 rounded bg-slate-700/50" />
+                <div className="h-3 w-24 rounded bg-slate-700/50" />
+                <div className="h-2.5 w-12 rounded bg-slate-800 ml-auto" />
+              </div>
+            ))}
+          </div>
+        ) : filteredSchema.length === 0 ? (
+          <div className="text-center py-12 text-xs text-slate-500">
+            {searchTerm ? `No tables or columns matching "${searchTerm}"` : 'No database tables available'}
+          </div>
+        ) : (
+          filteredSchema.map((tbl) => {
+            const isExpanded = expandedTables[tbl.table];
 
-          return (
-            <div key={tbl.table} className="rounded-xl border border-slate-800/80 bg-slate-950/40 overflow-hidden">
+            return (
+              <div key={tbl.table} className="rounded-xl border border-slate-800/80 bg-slate-950/40 overflow-hidden">
               {/* Table Header */}
               <div
                 onClick={() => toggleTable(tbl.table)}
@@ -148,7 +166,8 @@ export const SchemaExplorer: React.FC<SchemaExplorerProps> = ({
               )}
             </div>
           );
-        })}
+        })
+      )}
       </div>
     </div>
   );

@@ -62,7 +62,16 @@ export const SQLAnalystPage: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   // States
-  const [schema, setSchema] = useState<TableSchema[]>([]);
+  const [schema, setSchema] = useState<TableSchema[]>(() => {
+    try {
+      const cached = sessionStorage.getItem('aura_cached_schema');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isLoadingSchema, setIsLoadingSchema] = useState<boolean>(false);
+  const [isLoadingInsights, setIsLoadingInsights] = useState<boolean>(false);
   const [insights, setInsights] = useState<ExecutiveInsightsResponse | null>(null);
   const [savedReports, setSavedReports] = useState<SavedReport[]>([]);
   const [scheduledReports, setScheduledReports] = useState<ScheduledReport[]>([]);
@@ -83,31 +92,61 @@ export const SQLAnalystPage: React.FC = () => {
   const [newReportChartType, setNewReportChartType] = useState<string>('table');
   const [newReportTags, setNewReportTags] = useState<string>('Analytics, SQL');
 
-  // Load initial data
+  // Fast independent schema fetcher with client-side caching
+  const fetchSchema = async (forceRefresh = false) => {
+    setIsLoadingSchema(true);
+    try {
+      const sch = await biService.getSchema(forceRefresh);
+      if (sch && sch.length > 0) {
+        setSchema(sch);
+        try {
+          sessionStorage.setItem('aura_cached_schema', JSON.stringify(sch));
+        } catch {}
+      }
+    } catch (err) {
+      console.error('Failed to load database schema:', err);
+    } finally {
+      setIsLoadingSchema(false);
+    }
+  };
+
+  // Lazy-load executive insights only when the dashboard tab is activated
+  const fetchInsights = async () => {
+    if (insights || isLoadingInsights) return;
+    setIsLoadingInsights(true);
+    try {
+      const ins = await biService.getInsights();
+      setInsights(ins);
+    } catch (err) {
+      console.error('Failed to load executive insights:', err);
+    } finally {
+      setIsLoadingInsights(false);
+    }
+  };
+
+  // Initial fast load: fetch schema & reports immediately without waiting for slow AI calls
   useEffect(() => {
-    loadInitialData();
+    fetchSchema();
+    biService.getSavedReports().then(setSavedReports).catch(() => []);
+    biService.getScheduledReports().then(setScheduledReports).catch(() => []);
+    biService.getQueryHistory().then(setQueryHistory).catch(() => []);
   }, []);
 
-  const loadInitialData = async () => {
-    setIsLoading(true);
-    try {
-      const [sch, ins, sRep, scRep, hist] = await Promise.all([
-        biService.getSchema().catch(() => []),
-        biService.getInsights().catch(() => null),
-        biService.getSavedReports().catch(() => []),
-        biService.getScheduledReports().catch(() => []),
-        biService.getQueryHistory().catch(() => []),
-      ]);
-      setSchema(sch);
-      setInsights(ins);
-      setSavedReports(sRep);
-      setScheduledReports(scRep);
-      setQueryHistory(hist);
-    } catch (err) {
-      console.error('Error loading BI data:', err);
-    } finally {
-      setIsLoading(false);
+  // Lazy load insights only when DASHBOARD tab is opened
+  useEffect(() => {
+    if (activeTab === 'DASHBOARD' && !insights) {
+      fetchInsights();
     }
+  }, [activeTab]);
+
+  const handleRefreshAll = () => {
+    fetchSchema(true);
+    if (activeTab === 'DASHBOARD') {
+      fetchInsights();
+    }
+    biService.getSavedReports().then(setSavedReports).catch(() => []);
+    biService.getScheduledReports().then(setScheduledReports).catch(() => []);
+    biService.getQueryHistory().then(setQueryHistory).catch(() => []);
   };
 
   // 1. Natural Language Query Generator
@@ -301,11 +340,11 @@ export const SQLAnalystPage: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={loadInitialData}
-              disabled={isLoading}
+              onClick={handleRefreshAll}
+              disabled={isLoadingSchema || isLoadingInsights}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all disabled:opacity-50"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-indigo-400' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoadingSchema || isLoadingInsights ? 'animate-spin text-indigo-400' : ''}`} />
               <span>Refresh Metrics</span>
             </button>
           </div>
@@ -423,8 +462,8 @@ export const SQLAnalystPage: React.FC = () => {
             <div className="lg:col-span-1 h-[520px]">
               <SchemaExplorer
                 schema={schema}
-                isLoading={isLoading}
-                onRefresh={loadInitialData}
+                isLoading={isLoadingSchema}
+                onRefresh={() => fetchSchema(true)}
                 onInsertText={(text) => {
                   setCurrentSql((prev) => `${prev} ${text}`);
                 }}
@@ -465,8 +504,8 @@ export const SQLAnalystPage: React.FC = () => {
             <div className="h-[600px]">
               <SchemaExplorer
                 schema={schema}
-                isLoading={isLoading}
-                onRefresh={loadInitialData}
+                isLoading={isLoadingSchema}
+                onRefresh={() => fetchSchema(true)}
                 onInsertText={(text) => {
                   setCurrentSql(text.startsWith('SELECT') ? text : `SELECT * FROM ${text} LIMIT 20;`);
                   setActiveTab('SANDBOX');

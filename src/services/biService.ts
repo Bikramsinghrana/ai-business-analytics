@@ -148,10 +148,10 @@ class BiService {
   }
 
   /**
-   * Discover MySQL database schema.
+   * Discover MySQL database schema with optional cache refresh.
    */
-  async getSchema(): Promise<TableSchema[]> {
-    const res = await apiClient.get<TableSchema[]>('/bi/schema');
+  async getSchema(refresh = false): Promise<TableSchema[]> {
+    const res = await apiClient.get<TableSchema[]>(`/bi/schema${refresh ? '?refresh=true' : ''}`);
     return res.data;
   }
 
